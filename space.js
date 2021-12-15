@@ -51,7 +51,7 @@ class Asteroid {
 
 const asteroid = new Asteroid();
 
-window.onload = function() {
+onload = function() {
     document.getElementById("start-btn").onclick = function() {
       startGame();
     }
