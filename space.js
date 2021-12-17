@@ -11,6 +11,12 @@ function startGame() {
     updateCanvas();
 }
 
+// some variables
+let updates = 0;
+let level = 1;
+let score = 0;
+let lifes = 5;
+
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
@@ -50,21 +56,92 @@ let spaceship = {
     }
 }
 
-// obstacle objects class
-class Object {
-    constructor (x, y, w, h, speed) {
+// LEVEL 1 Obstacles
+class EarthObjects {
+  constructor (x, y, w, h, velocity) {
+      this.x = x;
+      this.y = y;
+      this.w = w;
+      this.h = h;
+      this.velocity = {
+        x: 1,
+        y: 0
+      }
+  }
+  move() {
+      this.x += this.velocity.x
+  }
+  draw() {
+      this.move();
+      ctx.fillStyle = 'blue';
+      ctx.fillRect(this.x, this.y, this.w, this.h);
+  }
+  left() {
+      return this.x;
+    }
+  right() {
+      return this.x + this.w;
+    }
+  top() {
+      return this.y;
+    }
+  bottom() {
+      return this.y + this.h;
+    }
+}
+
+// LEVEL 2 Obstacles
+class OrbitObjects {
+  constructor (x, y, w, h, velocity) {
+      this.x = x;
+      this.y = y;
+      this.w = w;
+      this.h = h;
+      this.velocity = {
+        x: 1,
+        y: 0
+      }
+  }
+  move() {
+      this.x += this.velocity.x
+  }
+  draw() {
+      this.move();
+      ctx.fillStyle = 'darkgrey';
+      ctx.fillRect(this.x, this.y, this.w, this.h);
+  }
+  left() {
+      return this.x;
+    }
+  right() {
+      return this.x + this.w;
+    }
+  top() {
+      return this.y;
+    }
+  bottom() {
+      return this.y + this.h;
+    }
+}
+
+// LEVEL 3 Obstacles
+class Asteroid {
+    constructor (x, y, w, velocity) {
         this.x = x;
         this.y = y;
         this.w = w;
-        this.h = h;
-        this.speed = 1
+        this.h = this.w;
+        this.velocity = {
+          x: 0,
+          y: 1
+        }
     }
     move() {
-        this.y += this.speed
+        this.y += this.velocity.y
     }
     draw() {
         this.move();
-        ctx.fillStyle = 'green';
+        ctx.fillStyle = 'brown';
         ctx.fillRect(this.x, this.y, this.w, this.h);
     }
     left() {
@@ -80,24 +157,30 @@ class Object {
         return this.y + this.h;
       }
 }
-// update Counter
-let updates = 0;
 
 // random number function
 function calcRandomNum(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
   }
 
-let objectArray = []
+let objectArray = [];
 
-// function to create new object after about 5 seconds
+// create objects from left and right
 function createObjects () {
+  updates++;
+  if (updates % 200 === 0) {   
+      objectArray.push(new FlyingObjectsEarth(x, y, w, h));
+  }
+}
+
+
+// function to create new asteroid after about 5 seconds
+function createAsteroids1  () {
     updates++;
-        
-    if (updates % 200 === 0) {       
-        console.log('new object')
-        objectArray.push(new Object(calcRandomNum(0, canvas.width), 0, calcRandomNum(10, 60), calcRandomNum(10, 60)))
-    }
+    if (updates % 200 === 0) {   
+        objectArray.push(new Asteroid(calcRandomNum(0, canvas.width), 0, calcRandomNum(10, 60)))
+    console.log(objectArray)
+      }
 }
 
 // check for collision
@@ -106,19 +189,22 @@ function checkCollision () {
         return spaceship.collision(object);
     })
     if(collision) {
-        console.log('collision')
-    }
+        objectArray.splice(this.index, 1);
+        
+    }  
 }
 
 function updateCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height); 
     
     spaceship.draw();
-    createObjects();
+    checkCollision();
+    createAsteroids1();
+    
     objectArray.forEach((object) => {
         object.draw();
     })
-    checkCollision();
+    
 
     requestAnimationFrame(updateCanvas)
 }
