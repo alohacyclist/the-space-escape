@@ -14,7 +14,7 @@ function startGame() {
 // some variables
 let animationId;
 let updates = 0;
-let level = 3;
+let level = 1;
 let score = 0;
 let lifes = 500;
 
@@ -127,11 +127,16 @@ class Objects {
   }
   draw() {
       this.move();
-      ctx.save();
-      ctx.translate(this.x, this.y);
-      ctx.rotate(this.a * Math.PI/360);
-      ctx.drawImage(this.img, 0 - this.w/2, 0 - this.h/2, this.w, this.h);
-      ctx.restore();
+      if(this.type === 'asteroid'){
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.a * Math.PI/360);
+        ctx.drawImage(this.img, 0 - this.w/2, 0 - this.h/2, this.w, this.h);
+        ctx.restore();
+      } else {
+        ctx.drawImage(this.img, this.x, this.y, this.w, this.h);
+      }
+      
   }
   left() {
       return this.x;
@@ -154,15 +159,15 @@ function calcRandomNum(min, max) {
 
 // create objects from left
 function createObjects() {
-  if (updates % 200 === 0 && level == 1) {   
+  if (updates % 120 === 0 && level == 1) {   
     objectArray.push(new Objects
       (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), 1, 'airplane', airplaneL));
-  } else if (updates % 200 === 0 && level == 2) {
+  } else if (updates % 100 === 0 && level == 2) {
     Math.random() < 0.5 ? objectArray.push(new Objects
       (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), 1, 'airplane', airplaneL)) :
       objectArray.push(new Objects
         (canvas.width + 100, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), -1, 'airplane', airplaneR)); 
-  } else if (updates % 50 === 0 && level >= 3) {
+  } else if (updates % 100 === 0 && level >= 3) {
     objectArray.push(new Objects
       (calcRandomNum(0, canvas.width), 0 - 100, calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid', asteroid));
   }
@@ -181,22 +186,26 @@ function checkCollision() {
 
 // Levels
 function levels() {
-  if(updates % 2000 == 0) level++, lifes += 5;
-  createObjects();
-  }
+  if(updates % 3500 == 0) {
+    level++, lifes += 1;
+  }    
+}
+
+
   
 function updateCanvas() {
     updates++;
     ctx.clearRect(0, 0, canvas.width, canvas.height); 
-  
-    levels();
     
+    
+    levels();
     checkCollision();
+    createObjects();
     
     bgLevel3.draw();
     spaceship.draw();
     dispalyStats();
-
+    
     objectArray.forEach((object) => {
         object.draw();
     })
