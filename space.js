@@ -15,8 +15,8 @@ function startGame() {
 let animationId;
 let updates = 0;
 let level = 1;
+let shield = 500;
 let score = 0;
-let lifes = 500;
 
 let objectArray = [];
 
@@ -25,7 +25,8 @@ function dispalyStats() {
   ctx.font = '25px Arial';
   ctx.fillStyle = 'white';
   ctx.fillText(`Level: ${level}`, 30, 30);
-  ctx.fillText(`Shield: ${lifes}`, 30, 60);
+  ctx.fillText(`Score: ${score}`, 30, 60);
+  ctx.fillText(`Shield: ${shield}`, 30, 90);
 }
 
 canvas.width = 1024;
@@ -116,6 +117,17 @@ class Objects {
       this.velocity = velocity;
       this.type = type;
       this.collisionCounted = false;
+      this.pointsCounted = false;
+  }
+  score() {
+    if(this.type === 'airplane' && this.x > canvas.width && this.pointsCounted == false) {
+      this.pointsCounted = true;
+      score += 100;
+      console.log(score)
+    } else if (this.type === 'asteroid' && this.y > canvas.height == false) {
+      this.pointsCounted = true;
+      score += 100;
+    }
   }
   move() {
     this.a++;
@@ -179,7 +191,7 @@ function checkCollision() {
       if(spaceship.collision(object)) {
         let index = objectArray.indexOf(object)
         objectArray.splice(index, 1)
-        lifes--;
+        shield -= 50;
       }
   })
 }
@@ -187,16 +199,13 @@ function checkCollision() {
 // Levels
 function levels() {
   if(updates % 3500 == 0) {
-    level++, lifes += 1;
+    level++, shield += 1;
   }    
 }
-
-
   
 function updateCanvas() {
     updates++;
     ctx.clearRect(0, 0, canvas.width, canvas.height); 
-    
     
     levels();
     checkCollision();
@@ -208,10 +217,11 @@ function updateCanvas() {
     
     objectArray.forEach((object) => {
         object.draw();
+        object.score();
     })
 
     // GAME OVER
-    if(lifes == 0) {
+    if(shield == 0) {
       ctx.cancelAnimationFrame(animationId)
     }
 
@@ -238,6 +248,7 @@ document.addEventListener('keyup', (event) => {
 document.addEventListener('keydown', (event) => {
   switch (event.keyCode) {
     case 37: // LEFT
+
       spaceship.velocity.x += spaceship.thrust;
       spaceship.x -= spaceship.velocity.x / 10;
       break;
