@@ -174,6 +174,7 @@ function checkCollision() {
       if(spaceship.collision(object)) {
         let index = objectArray.indexOf(object)
         objectArray.splice(index, 1)
+        lifes--;
       }
   })
 }
@@ -214,7 +215,7 @@ document.addEventListener('keyup', (event) => {
       spaceship.x -= 0;
       break;
     case 38:
-      spaceship.velocity.y -= 0;
+      spaceship.y -= 0;
       break;
     case 39:
       spaceship.x += 0;
@@ -229,19 +230,19 @@ document.addEventListener('keydown', (event) => {
   switch (event.keyCode) {
     case 37: // LEFT
       spaceship.velocity.x += spaceship.thrust;
-      spaceship.x -= spaceship.velocity.x;
+      spaceship.x -= spaceship.velocity.x / 10;
       break;
     case 38: // UP
       spaceship.velocity.y += spaceship.thrust;
-      spaceship.y -= spaceship.velocity.y
+      spaceship.y -= spaceship.velocity.y / 10;
       break;
     case 39: // RIGHT
       spaceship.velocity.x += spaceship.thrust;
-      spaceship.x += spaceship.velocity.x;
+      spaceship.x += spaceship.velocity.x / 10;
       break;
     case 40:
       spaceship.velocity.y += spaceship.thrust;
-      spaceship.y += spaceship.velocity.y;
+      spaceship.y += spaceship.velocity.y / 10;
       break;
   }
 });
