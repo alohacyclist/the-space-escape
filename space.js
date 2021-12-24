@@ -1,9 +1,14 @@
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext("2d");
 
+const title = document.querySelector('#title');
+const startBtn = document.querySelector('#startBtn');
+
 onload = function() {
-    document.getElementById("start-btn").onclick = function() {
+    document.querySelector("#startBtn").onclick = function() {
       startGame();
+      title.remove();
+      startBtn.remove();
     }
 }
 
@@ -120,11 +125,10 @@ class Objects {
       this.pointsCounted = false;
   }
   score() {
-    if(this.type === 'airplane' && this.x > canvas.width && this.pointsCounted == false) {
+    if(level <= 3 && (this.x + this.w > canvas.width) && this.pointsCounted == false) {
       this.pointsCounted = true;
       score += 100;
-      console.log(score)
-    } else if (this.type === 'asteroid' && this.y > canvas.height == false) {
+    } else if (this.type === 'asteroid' && this.y > canvas.height && this.pointsCounted == false) {
       this.pointsCounted = true;
       score += 100;
     }
@@ -191,15 +195,16 @@ function checkCollision() {
       if(spaceship.collision(object)) {
         let index = objectArray.indexOf(object)
         objectArray.splice(index, 1)
-        shield -= 50;
+        shield -= 150;
+        score -= 300;
       }
   })
 }
 
 // Levels
 function levels() {
-  if(updates % 3500 == 0) {
-    level++, shield += 1;
+  if(updates % 1500 == 0) {
+    level++, shield += 100;
   }    
 }
   
@@ -221,7 +226,7 @@ function updateCanvas() {
     })
 
     // GAME OVER
-    if(shield == 0) {
+    if(shield <= 0) {
       ctx.cancelAnimationFrame(animationId)
     }
 
