@@ -1,4 +1,4 @@
-const canvas = document.querySelector('canvas');
+const canvas = document.querySelector('#canvas');
 const ctx = canvas.getContext("2d");
 
 const title = document.querySelector('#title');
@@ -7,12 +7,13 @@ const startBtn = document.querySelector('#startBtn');
 onload = function() {
     document.querySelector("#startBtn").onclick = function() {
       startGame();
-      title.remove();
-      startBtn.remove();
     }
 }
 
 function startGame() {
+    canvas.style.display = 'block';
+    startScreen.style.display = 'none';
+    highScore.style.display = 'none';
     updateCanvas();
 }
 
@@ -227,10 +228,16 @@ function updateCanvas() {
 
     // GAME OVER
     if(shield <= 0) {
-      ctx.cancelAnimationFrame(animationId)
+      gameOver();
     }
 
-    animationId = requestAnimationFrame(updateCanvas)
+    requestAnimationFrame(updateCanvas)
+}
+
+function gameOver() {
+  canvas.style.display = 'none';
+  endScreen.style.display = 'block';
+  startBtn.style.display = 'block';
 }
 
 document.addEventListener('keyup', (event) => {

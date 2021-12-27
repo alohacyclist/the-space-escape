@@ -5,6 +5,10 @@ body {
     background-color: black;
 }
 
+#canvas {
+    display: none;
+}
+
 #title {
     position: absolute;
     font-size: 60px;
@@ -17,9 +21,32 @@ body {
     padding: 10px;
 }
 
-#start-btn {
+#startBtn {
+    display: inline-block;
     position: absolute;
     top: 63%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+#endScreen {
+    display: none;
+}
+
+#highScore {
+    position: relative;
+    transform: translate(0, 100px);
+}
+
+#playerName {
+    position: relative;
+    font-size: 20px;
+    background-color: gray;
+    color: white;
+    left: 50%;
+    transform: translate(-50%, 140px);
+}
+
+::placeholder {
+    color: black;
 }

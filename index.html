@@ -8,11 +8,27 @@
     <title>Escape to Space</title>
 </head>
 <body>
-  <h1 id='title'>The Space Escape</h1>
   
-  <button id="start-btn">Start Game</button>
-  <canvas></canvas>
+  <div id='startScreen'>
+    <h1 id='title'>The Space Escape</h1>
+    <button id="startBtn">Start Game</button>
+  </div>
+  
+  <div id='endScreen'>
+    <h1 id='title'>Game Over</h1>
+    <button id="startBtn">Start Game</button>
+  </div>
+
+  <div id='highScore'>
+    <h1 id='title'>Highscore</h1>
+    <input id='playerName' type='text' placeholder='Enter your name'>
+    <ul id='highScoreList'>
       
+    </ul>
+  </div>
+
+
+  <canvas id='canvas'></canvas>
 
     <script type="text/javascript" src="./space.js"></script>
     
