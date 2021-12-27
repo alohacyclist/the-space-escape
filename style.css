@@ -9,7 +9,7 @@ body {
     display: none;
 }
 
-#title {
+h1 {
     position: absolute;
     font-size: 60px;
     text-align: center;
@@ -18,10 +18,21 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     border: 5px solid #fff;
-    padding: 10px;
+    padding: 15px;
 }
 
-#startBtn {
+h2 {
+    font-size: 60px;
+    text-align: center;
+    color: #fff;
+    border: 5px solid #fff;
+    padding: 15px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-0%, 100%);    
+}
+
+button {
     display: inline-block;
     position: absolute;
     top: 63%;
@@ -34,8 +45,22 @@ body {
 }
 
 #highScore {
+    display: none;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -20%);
+}
+
+#highScoreList {
     position: relative;
-    transform: translate(0, 100px);
+    color: white;
+    font-size: 28px;
+    line-height: 40px;
+    list-style: none;
+    left: 50%;
+    top: 50%;
+    transform: translate(-25%, 100%);
+    
 }
 
 #playerName {
@@ -44,7 +69,8 @@ body {
     background-color: gray;
     color: white;
     left: 50%;
-    transform: translate(-50%, 140px);
+    top: 30%;
+    transform: translate(-50%, 400%);
 }
 
 ::placeholder {

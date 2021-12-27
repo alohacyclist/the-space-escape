@@ -1,19 +1,19 @@
 const canvas = document.querySelector('#canvas');
-const ctx = canvas.getContext("2d");
+const ctx = canvas.getContext('2d');
 
-const title = document.querySelector('#title');
-const startBtn = document.querySelector('#startBtn');
+const startBtn = document.querySelector('.startBtn');
 
 onload = function() {
-    document.querySelector("#startBtn").onclick = function() {
+    document.querySelector('.startBtn').onclick = function() {
       startGame();
     }
 }
 
 function startGame() {
-    canvas.style.display = 'block';
+    endScreen.style.display = 'none';
     startScreen.style.display = 'none';
     highScore.style.display = 'none';
+    canvas.style.display = 'block';
     updateCanvas();
 }
 
@@ -237,7 +237,10 @@ function updateCanvas() {
 function gameOver() {
   canvas.style.display = 'none';
   endScreen.style.display = 'block';
-  startBtn.style.display = 'block';
+  highScore.style.display = 'block';
+  document.querySelector('.startAgainBtn').onclick = function() {
+    startGame();
+  }
 }
 
 document.addEventListener('keyup', (event) => {
