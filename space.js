@@ -2,29 +2,42 @@ const canvas = document.querySelector('#canvas');
 const ctx = canvas.getContext('2d');
 
 const startBtn = document.querySelector('.startBtn');
+const startAgainBtn = document.querySelector('.startAgainBtn');
 
 onload = function() {
-    document.querySelector('.startBtn').onclick = function() {
+    startBtn.onclick = function() {
       startGame();
     }
 }
 
-function startGame() {
-    endScreen.style.display = 'none';
-    startScreen.style.display = 'none';
-    highScore.style.display = 'none';
-    canvas.style.display = 'block';
-    updateCanvas();
-}
-
 // some variables
-let animationId;
 let updates = 0;
 let level = 1;
 let shield = 500;
 let score = 0;
-
 let objectArray = [];
+
+function start() {
+  endScreen.style.display = 'none';
+  startScreen.style.display = 'none';
+  highScore.style.display = 'none';
+  canvas.style.display = 'block';
+}
+
+function gameOver() {
+  canvas.style.display = 'none';
+  endScreen.style.display = 'block';
+  highScore.style.display = 'block';
+  startAgainBtn.onclick = function() {
+    reset();
+    start();
+    }
+}
+
+function startGame() {
+    start()
+    updateCanvas();
+}
 
 // display game statistics
 function dispalyStats() {
@@ -153,7 +166,6 @@ class Objects {
       } else {
         ctx.drawImage(this.img, this.x, this.y, this.w, this.h);
       }
-      
   }
   left() {
       return this.x;
@@ -208,6 +220,15 @@ function levels() {
     level++, shield += 100;
   }    
 }
+
+// new Game reset
+function reset() {
+  updates = 0;
+  level = 1;
+  shield = 500;
+  score = 0;
+  objectArray = [];
+}
   
 function updateCanvas() {
     updates++;
@@ -230,17 +251,7 @@ function updateCanvas() {
     if(shield <= 0) {
       gameOver();
     }
-
     requestAnimationFrame(updateCanvas)
-}
-
-function gameOver() {
-  canvas.style.display = 'none';
-  endScreen.style.display = 'block';
-  highScore.style.display = 'block';
-  document.querySelector('.startAgainBtn').onclick = function() {
-    startGame();
-  }
 }
 
 document.addEventListener('keyup', (event) => {
