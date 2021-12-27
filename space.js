@@ -3,6 +3,8 @@ const ctx = canvas.getContext('2d');
 
 const startBtn = document.querySelector('.startBtn');
 const startAgainBtn = document.querySelector('.startAgainBtn');
+const playerName = document.querySelector('.playerName');
+const submitBtn = document.querySelector('.submit');
 
 onload = function() {
     startBtn.onclick = function() {
@@ -16,28 +18,7 @@ let level = 1;
 let shield = 500;
 let score = 0;
 let objectArray = [];
-
-function start() {
-  endScreen.style.display = 'none';
-  startScreen.style.display = 'none';
-  highScore.style.display = 'none';
-  canvas.style.display = 'block';
-}
-
-function gameOver() {
-  canvas.style.display = 'none';
-  endScreen.style.display = 'block';
-  highScore.style.display = 'block';
-  startAgainBtn.onclick = function() {
-    reset();
-    start();
-    }
-}
-
-function startGame() {
-    start()
-    updateCanvas();
-}
+let scoreName = playerName.value;
 
 // display game statistics
 function dispalyStats() {
@@ -221,6 +202,18 @@ function levels() {
   }    
 }
 
+submitBtn.onclick = () => {
+  highscore();
+}
+
+// Highscore
+function highscore() {
+  const playerHighScore = document.createElement('li');
+  playerHighScore.innerHTML = `${scoreName} ${score}`;
+  highScoreList.appendChild(playerHighScore);
+  
+}
+
 // new Game reset
 function reset() {
   updates = 0;
@@ -228,6 +221,28 @@ function reset() {
   shield = 500;
   score = 0;
   objectArray = [];
+}
+
+function start() {
+  endScreen.style.display = 'none';
+  startScreen.style.display = 'none';
+  highScore.style.display = 'none';
+  canvas.style.display = 'block';
+}
+
+function gameOver() {
+  canvas.style.display = 'none';
+  endScreen.style.display = 'block';
+  highScore.style.display = 'block';
+  startAgainBtn.onclick = function() {
+    reset();
+    start();
+    }
+}
+
+function startGame() {
+    start()
+    updateCanvas();
 }
   
 function updateCanvas() {

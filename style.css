@@ -40,6 +40,10 @@ button {
     transform: translate(-50%, -50%);
 }
 
+.submit {
+    display: block;
+}
+
 #endScreen {
     display: none;
 }
@@ -62,7 +66,7 @@ button {
     transform: translate(-25%, 100%);
 }
 
-#playerName {
+.playerName {
     position: relative;
     font-size: 20px;
     background-color: gray;
