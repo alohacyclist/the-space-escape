@@ -11,12 +11,12 @@ body {
 
 h1 {
     position: absolute;
-    font-size: 60px;
-    text-align: center;
-    color: #fff;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    font-size: 60px;
+    text-align: center;
+    color: #fff;
     border: 5px solid #fff;
     padding: 15px;
 }
@@ -27,13 +27,20 @@ h2 {
     color: #fff;
     border: 5px solid #fff;
     padding: 15px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-0%, 100%);    
 }
 
-button {
-    display: inline-block;
+.startBtn  {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 63%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.startAgainBtn {
+    display: flex;
+    flex-direction: column;
     position: absolute;
     top: 63%;
     left: 50%;
@@ -41,39 +48,36 @@ button {
 }
 
 .submit {
-    display: block;
+    border: none;
 }
 
 #endScreen {
     display: none;
+    flex-direction: column;
 }
 
 #highScore {
-    display: none;
+    align-items: center;
     position: absolute;
+    top: 10%;
     left: 50%;
     transform: translate(-50%, -20%);
 }
 
-#highScoreList {
-    position: relative;
+.highScoreList {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    align-items: center;
     color: white;
     font-size: 28px;
-    line-height: 40px;
     list-style: none;
-    left: 50%;
-    top: 50%;
-    transform: translate(-25%, 100%);
 }
 
 .playerName {
-    position: relative;
     font-size: 20px;
     background-color: gray;
     color: white;
-    left: 50%;
-    top: 30%;
-    transform: translate(-50%, 400%);
 }
 
 ::placeholder {

@@ -2,9 +2,11 @@ const canvas = document.querySelector('#canvas');
 const ctx = canvas.getContext('2d');
 
 const startBtn = document.querySelector('.startBtn');
+
 const startAgainBtn = document.querySelector('.startAgainBtn');
 const playerName = document.querySelector('.playerName');
 const submitBtn = document.querySelector('.submit');
+const highScoreList = document.querySelector('.highScoreList');
 
 onload = function() {
     startBtn.onclick = function() {
@@ -18,7 +20,7 @@ let level = 1;
 let shield = 500;
 let score = 0;
 let objectArray = [];
-let scoreName = playerName.value;
+let scoreName = '';
 
 // display game statistics
 function dispalyStats() {
@@ -209,9 +211,10 @@ submitBtn.onclick = () => {
 // Highscore
 function highscore() {
   const playerHighScore = document.createElement('li');
+  scoreName = playerName.value;
   playerHighScore.innerHTML = `${scoreName} ${score}`;
   highScoreList.appendChild(playerHighScore);
-  
+  playerName.value = '';   
 }
 
 // new Game reset
