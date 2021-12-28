@@ -229,14 +229,12 @@ function reset() {
 function start() {
   endScreen.style.display = 'none';
   startScreen.style.display = 'none';
-  highScore.style.display = 'none';
   canvas.style.display = 'block';
 }
 
 function gameOver() {
   canvas.style.display = 'none';
-  endScreen.style.display = 'block';
-  highScore.style.display = 'block';
+  endScreen.style.display = 'flex';
   startAgainBtn.onclick = function() {
     reset();
     start();
