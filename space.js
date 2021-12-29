@@ -8,6 +8,7 @@ const playerName = document.querySelector('.playerName');
 const submitBtn = document.querySelector('.submit');
 const highScoreList = document.querySelector('.highScoreList');
 
+
 onload = function() {
     startBtn.onclick = function() {
       startGame();
@@ -15,12 +16,15 @@ onload = function() {
 }
 
 // some variables
+let animationId;
 let updates = 0;
 let level = 1;
 let shield = 500;
 let score = 0;
 let objectArray = [];
 let scoreName = '';
+const highscoreArr = [];
+const top3 = [];
 
 // display game statistics
 function dispalyStats() {
@@ -204,21 +208,38 @@ function levels() {
   }    
 }
 
-submitBtn.onclick = () => {
-  highscore();
+// Highscore
+function enterHighscore() {
+  scoreName = playerName.value;
+  highscoreArr.push({name: scoreName, playerScore: score});
+  playerName.value = '';   
 }
 
-// Highscore
-function highscore() {
+function createHighscoreEntry (scoreName, score) {
   const playerHighScore = document.createElement('li');
-  scoreName = playerName.value;
   playerHighScore.innerHTML = `${scoreName} ${score}`;
   highScoreList.appendChild(playerHighScore);
-  playerName.value = '';   
+}
+
+function createTop3 (highscoreArr) {
+  highScoreList.innerHTML = '';
+  highscoreArr.sort((score1, score2) => score2.playerScore - score1.playerScore);
+  for (let i = 0; i < 3; i++) {
+    if (highscoreArr[i]) {
+      createHighscoreEntry(highscoreArr[i].name, highscoreArr[i].playerScore)
+    }
+  }
+}
+
+submitBtn.onclick = () => {
+  enterHighscore();
+  createTop3(highscoreArr);
 }
 
 // new Game reset
 function reset() {
+  spaceship.x = canvas.width/2;
+  spaceship.y = canvas.height/2;
   updates = 0;
   level = 1;
   shield = 500;
@@ -230,9 +251,11 @@ function start() {
   endScreen.style.display = 'none';
   startScreen.style.display = 'none';
   canvas.style.display = 'block';
+  updateCanvas();
 }
 
 function gameOver() {
+  cancelAnimationFrame(animationId);
   canvas.style.display = 'none';
   endScreen.style.display = 'flex';
   startAgainBtn.onclick = function() {
@@ -242,8 +265,7 @@ function gameOver() {
 }
 
 function startGame() {
-    start()
-    updateCanvas();
+  start();
 }
   
 function updateCanvas() {
@@ -262,15 +284,15 @@ function updateCanvas() {
         object.draw();
         object.score();
     })
-
+    animationId = requestAnimationFrame(updateCanvas)
     // GAME OVER
     if(shield <= 0) {
       gameOver();
     }
-    requestAnimationFrame(updateCanvas)
+    ;
 }
 
-document.addEventListener('keyup', (event) => {
+/* document.addEventListener('keyup', (event) => {
   switch (event.keyCode) {
     case 37:
       spaceship.x -= 0;
@@ -285,26 +307,26 @@ document.addEventListener('keyup', (event) => {
       spaceship.y += 0;
       break;
   }
-});
+}); */
 
 document.addEventListener('keydown', (event) => {
   switch (event.keyCode) {
     case 37: // LEFT
 
       spaceship.velocity.x += spaceship.thrust;
-      spaceship.x -= spaceship.velocity.x / 10;
+      spaceship.x -= spaceship.velocity.x / 15;
       break;
     case 38: // UP
       spaceship.velocity.y += spaceship.thrust;
-      spaceship.y -= spaceship.velocity.y / 10;
+      spaceship.y -= spaceship.velocity.y / 15;
       break;
     case 39: // RIGHT
       spaceship.velocity.x += spaceship.thrust;
-      spaceship.x += spaceship.velocity.x / 10;
+      spaceship.x += spaceship.velocity.x / 15;
       break;
     case 40:
       spaceship.velocity.y += spaceship.thrust;
-      spaceship.y += spaceship.velocity.y / 10;
+      spaceship.y += spaceship.velocity.y / 15;
       break;
   }
 });
