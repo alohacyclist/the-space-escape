@@ -138,9 +138,11 @@ class Objects {
   move() {
     this.a++;
     if (this.type === 'airplane' || this.type === 'satellite' || this.type === 'bird' || this.type === 'balloon') {
-      this.x += this.velocity
-    } else if (this.type === 'asteroid') {
-      this.y += this.velocity
+      this.x += this.velocity;
+    } else if (this.type === 'asteroid' && level > 2 && level < 6 ) {
+      this.y += this.velocity;
+    } else if (this.type === 'asteroid' && level >= 6) {
+      this.x += this.velocity;
     }
   }
   draw() {
@@ -176,17 +178,30 @@ function calcRandomNum(min, max) {
 
 // create objects from left
 function createObjects() {
-  if (updates % 120 === 0 && level == 1) {   
+  if (updates % 80 === 0 && level == 1) {   
     objectArray.push(new Objects
       (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), 1, 'airplane', airplaneL));
-  } else if (updates % 100 === 0 && level == 2) {
+  } else if (updates % 80 === 0 && level == 2) {
     Math.random() < 0.5 ? objectArray.push(new Objects
       (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), 1, 'airplane', airplaneL)) :
       objectArray.push(new Objects
         (canvas.width + 100, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), -1, 'airplane', airplaneR)); 
-  } else if (updates % 100 === 0 && level >= 3) {
+  } else if (updates % 80 === 0 && level == 3 ) {
     objectArray.push(new Objects
       (calcRandomNum(0, canvas.width), 0 - 100, calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid', asteroid));
+  } else if (updates % 60 === 0 && level == 4) {
+    objectArray.push(new Objects
+      (calcRandomNum(0, canvas.width), 0 - 100, calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid', asteroid));
+  } else if (updates % 40 === 0 && level == 5) {
+    objectArray.push(new Objects
+      (calcRandomNum(0, canvas.width), 0 - 100, calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid', asteroid));
+  } else if (updates % 80 === 0 && level >= 6) {
+    // left
+    objectArray.push(new Objects
+      (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid', asteroid));
+    // right
+    objectArray.push(new Objects
+      (canvas.width + 100, calcRandomNum(0, canvas.height), calcRandomNum(100, 50), calcRandomNum(100, 50), -1, 'asteroid', asteroid))
   }
 }
 
@@ -205,9 +220,12 @@ function checkCollision() {
 // Levels
 function levels() {
   if(updates % 1500 == 0) {
-    level++, shield += 100;
-  }    
-}
+    level++;
+    if (shield < 500) {
+      shield += 50;
+    }
+  } 
+} 
 
 // Highscore
 function enterHighscore() {
@@ -227,7 +245,6 @@ function createHighscoreEntry (scoreName, score) {
 function createTop3 (highscoreArr) {
   highScoreList.innerHTML = '';
   highscoreArr.sort((score1, score2) => score2.playerScore - score1.playerScore);
-
   for (let i = 0; i < 3; i++) {
     if (highscoreArr[i]) {
       createHighscoreEntry(highscoreArr[i].name, highscoreArr[i].playerScore)
