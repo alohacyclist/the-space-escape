@@ -212,8 +212,9 @@ function levels() {
 // Highscore
 function enterHighscore() {
   scoreName = playerName.value;
-  localStorage.setItem('highscores', JSON.stringify(highscoreArr));
   highscoreArr.push({name: scoreName, playerScore: score});
+  localStorage.setItem('highscores', JSON.stringify(highscoreArr));
+  console.log(highscoreArr);
   playerName.value = '';   
 }
 
@@ -236,8 +237,8 @@ function createTop3 (highscoreArr) {
 
 submitBtn.onclick = () => {
   enterHighscore();
-  
   createTop3(highscoreArr);
+  submitBtn.style.display = 'none';
 }
 
 // new Game reset
