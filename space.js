@@ -267,6 +267,7 @@ function reset() {
   shield = 500;
   score = 0;
   objectArray = [];
+  submitBtn.style.display = 'inline'
 }
 
 function start() {
