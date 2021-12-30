@@ -23,8 +23,9 @@ let shield = 500;
 let score = 0;
 let objectArray = [];
 let scoreName = '';
-const highscoreArr = [];
-const top3 = [];
+
+const highscoreArr = JSON.parse(localStorage.getItem('highscores')) || [];
+
 
 // display game statistics
 function dispalyStats() {
@@ -211,6 +212,7 @@ function levels() {
 // Highscore
 function enterHighscore() {
   scoreName = playerName.value;
+  localStorage.setItem('highscores', JSON.stringify(highscoreArr));
   highscoreArr.push({name: scoreName, playerScore: score});
   playerName.value = '';   
 }
@@ -224,6 +226,7 @@ function createHighscoreEntry (scoreName, score) {
 function createTop3 (highscoreArr) {
   highScoreList.innerHTML = '';
   highscoreArr.sort((score1, score2) => score2.playerScore - score1.playerScore);
+
   for (let i = 0; i < 3; i++) {
     if (highscoreArr[i]) {
       createHighscoreEntry(highscoreArr[i].name, highscoreArr[i].playerScore)
@@ -233,6 +236,7 @@ function createTop3 (highscoreArr) {
 
 submitBtn.onclick = () => {
   enterHighscore();
+  
   createTop3(highscoreArr);
 }
 
