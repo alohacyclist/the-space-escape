@@ -22,7 +22,7 @@ let objectCircle = false;
 // some variables
 let animationId;
 let updates = 0;
-let level = 3;
+let level = 1;
 let shield = 500;
 let score = 0;
 let objectArray = [];
@@ -155,7 +155,8 @@ const object3 = new Objects (0 - 180, calcRandomNum(0, canvas.height), calcRando
 // create objects from left
 function createObjects() {
   if (updates % 100 === 0 && level == 1) {   
-    objectArray.push(object1, object2, object3);
+    objectArray.push(new Objects
+      (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), 1, 'airplane', airplaneL));
   } else if (updates % 80 === 0 && level == 2) {
     Math.random() < 0.5 ? objectArray.push(new Objects
       (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), 1, 'airplane', airplaneL)) :
@@ -195,7 +196,6 @@ function enterHighscore() {
   scoreName = playerName.value;
   highscoreArr.push({name: scoreName, playerScore: score});
   localStorage.setItem('highscores', JSON.stringify(highscoreArr));
-  console.log(highscoreArr);
   playerName.value = '';   
 }
 
@@ -286,15 +286,33 @@ addEventListener('click', (event) => {
   const weapon = new Weapon(spaceship.x + spaceship.w/2, spaceship.y + spaceship.h/2, 5, 'red', velocity);
   weaponArr.push(weapon)
 })
-
+// removes weapons from array if they are out of screen bounds
 function deleteWeapon() {
   weaponArr.forEach((weapon, wIdx) => {
     if(weapon.x > canvas.width || weapon.x < 0 || weapon.y > canvas.height || weapon.y < 0) weaponArr.splice(wIdx, 1);
   })
 }
-
-function hit(x1, x2, y1, y2, r1, r2) {
+// detects circle-circle collisions
+function hitCircles(x1, x2, y1, y2, r1, r2) {
   return (Math.hypot(x1 - x2, y1 - y2) <= r1 + r2);
+}
+// detects rectangle-circle collisions
+function hitRects(pointX, pointY, pointR, rectX, rectY, rectW, rectH) {
+  if(Math.abs(pointX - (rectX - rectW/2) > rectW/2 + pointR)) {
+    return false;
+  }
+  if(Math.abs(pointY - (rectY - rectH/2) > rectH/2 + pointR)) {
+    return false;
+  }
+  if(Math.abs(pointX - (rectX - rectW/2) <= rectW/2)) {
+    return true;
+  }
+  if(Math.abs(pointY - (rectY - rectH/2) <= rectH/2)) {
+    return true;
+  }
+  /* const dx = Math.abs(pointX - (rectX - rectW/2) - rectW/2);
+  const dy = Math.abs(pointY - (rectY - rectH/2) - rectH/2);
+  return (Math.pow(dx, 2) + Math.pow(dy, 2) <= Math.pow(pointR, 2))   */
 }
   
 function updateCanvas() {
@@ -337,21 +355,24 @@ function updateCanvas() {
     })
     objectArray.forEach((object, objIndex) => {
       object.draw();
-      if(hit(spaceship.x + spaceship.w/2, object.x + object.w/2, spaceship.y + spaceship.h/2, object.y + object.h/2, 60, object.w/2)) {
+      if(hitCircles(spaceship.x + spaceship.w/2, object.x + object.w/2, spaceship.y + spaceship.h/2, object.y + object.h/2, 60, object.w/2)) {
         objectArray.splice(objIndex, 1);
         shield -= 150;
         score -= 300;
-      }      
+      }   
       weaponArr.forEach((weapon, weaponIndex) => {        
-        if (hit(weapon.x, object.x + object.w/2, weapon.y, object.y + object.h/2, 3, object.w/2)) {
+        if (hitCircles(weapon.x, object.x + object.w/2, weapon.y, object.y + object.h/2, 3, object.w/2) && level > 2) {
         objectArray.splice(objIndex, 1);
         weaponArr.splice(weaponIndex, 1);
-        }
+        score += 50;
+        } else if (hitCircles(weapon.x, object.x + object.w/2, weapon.y, object.y + object.h/2, 3, object.w/2)) {
+          objectArray.splice(objIndex, 1);
+          weaponArr.splice(weaponIndex, 1);
+          score -= 150;
+          }
       })
       object.score();
     })
-
-    
 
     animationId = requestAnimationFrame(updateCanvas)
     // GAME OVER
