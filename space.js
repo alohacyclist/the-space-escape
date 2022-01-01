@@ -15,17 +15,20 @@ onload = function() {
     }
 }
 
+// HELPER VARIABLES
+let spaceshipCircle = false;
+let objectCircle = false;
+
 // some variables
 let animationId;
 let updates = 0;
-let level = 1;
+let level = 3;
 let shield = 500;
 let score = 0;
 let objectArray = [];
+const weaponArr = []; 
 let scoreName = '';
-
 const highscoreArr = JSON.parse(localStorage.getItem('highscores')) || [];
-
 
 // display game statistics
 function dispalyStats() {
@@ -88,26 +91,6 @@ let spaceship = {
     },
     draw: function () {
         ctx.drawImage(this.img, this.x, this.y, this.w, this.h);
-    },
-    left: function () {
-        return this.x;
-      },
-    right: function () {
-        return this.x + this.w;
-      },
-    top: function () {
-        return this.y;
-      },
-    bottom: function () {
-        return this.y + this.h;
-      },
-    collision: function (object) {
-        return !(
-          this.bottom() < object.top() ||
-          this.top() > object.bottom() ||
-          this.right() < object.left() ||
-          this.left() > object.right()
-        );
     }
 }
 
@@ -157,18 +140,6 @@ class Objects {
         ctx.drawImage(this.img, this.x, this.y, this.w, this.h);
       }
   }
-  left() {
-      return this.x;
-    }
-  right() {
-      return this.x + this.w;
-    }
-  top() {
-      return this.y;
-    }
-  bottom() {
-      return this.y + this.h;
-    }
 }
 
 // random number function for sizing objects
@@ -176,11 +147,15 @@ function calcRandomNum(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
   }
 
+//helper function -> create 3 objects
+const object1 = new Objects (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), 1, 'airplane', airplaneL)
+const object2 = new Objects (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), 1, 'airplane', airplaneL)
+const object3 = new Objects (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), 1, 'airplane', airplaneL)
+
 // create objects from left
 function createObjects() {
-  if (updates % 80 === 0 && level == 1) {   
-    objectArray.push(new Objects
-      (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), 1, 'airplane', airplaneL));
+  if (updates % 100 === 0 && level == 1) {   
+    objectArray.push(object1, object2, object3);
   } else if (updates % 80 === 0 && level == 2) {
     Math.random() < 0.5 ? objectArray.push(new Objects
       (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), 1, 'airplane', airplaneL)) :
@@ -203,18 +178,6 @@ function createObjects() {
     objectArray.push(new Objects
       (canvas.width + 100, calcRandomNum(0, canvas.height), calcRandomNum(100, 50), calcRandomNum(100, 50), -1, 'asteroid', asteroid))
   }
-}
-
-// check for collision
-function checkCollision() {
-    objectArray.some((object) => {
-      if(spaceship.collision(object)) {
-        let index = objectArray.indexOf(object)
-        objectArray.splice(index, 1)
-        shield -= 150;
-        score -= 300;
-      }
-  })
 }
 
 // Levels
@@ -290,29 +253,111 @@ function gameOver() {
 function startGame() {
   start();
 }
+
+class Weapon {
+  constructor(x, y, r, color, velocity) {
+    this.x = x;
+    this.y = y;
+    this.r = r;
+    this.color = color;
+    this.velocity = velocity;
+  }
+
+  move() {
+    this.x = this.x + this.velocity.x;
+    this.y = this.y + this.velocity.y;
+  }
+
+  draw() {
+    this.move();
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+  }
+}
+
+addEventListener('click', (event) => {
+  const angle = Math.atan2(event.clientY - (spaceship.y + spaceship.h/2), event.clientX - (spaceship.x + spaceship.w/2));
+  const velocity = {
+    x: Math.cos(angle),
+    y: Math.sin(angle)
+  }
+  const weapon = new Weapon(spaceship.x + spaceship.w/2, spaceship.y + spaceship.h/2, 5, 'red', velocity);
+  weaponArr.push(weapon)
+})
+
+function deleteWeapon() {
+  weaponArr.forEach((weapon, wIdx) => {
+    if(weapon.x > canvas.width || weapon.x < 0 || weapon.y > canvas.height || weapon.y < 0) weaponArr.splice(wIdx, 1);
+  })
+}
+
+function hit(x1, x2, y1, y2, r1, r2) {
+  return (Math.hypot(x1 - x2, y1 - y2) <= r1 + r2);
+}
   
 function updateCanvas() {
     updates++;
     ctx.clearRect(0, 0, canvas.width, canvas.height); 
     
     levels();
-    checkCollision();
     createObjects();
-    
+    deleteWeapon();
+
     bgLevel3.draw();
     spaceship.draw();
-    dispalyStats();
-    
+// DELETE LATER
+  if(spaceshipCircle) {
+    ctx.strokeStyle = 'salmon';
+    ctx.beginPath();
+    ctx.arc(spaceship.x + spaceship.w/2, spaceship.y + spaceship.h/2, 60, 0, Math.PI * 2, false);
+    ctx.stroke();
+  }
+  // airplane
+  if(objectCircle && level < 3) {
     objectArray.forEach((object) => {
-        object.draw();
-        object.score();
+    ctx.strokeStyle = 'lime';
+    ctx.beginPath();
+    ctx.arc(object.x + object.w/2, object.y + object.h/2, 40, 0, Math.PI * 2, false);
+    ctx.stroke();
     })
+  // asteroid
+  } else if(objectCircle) {
+    objectArray.forEach((object) => {
+      ctx.strokeStyle = 'lime';
+      ctx.beginPath();
+      ctx.arc(object.x, object.y, 35, 0, Math.PI * 2, false);
+      ctx.stroke();
+    })
+  }
+    dispalyStats();
+    weaponArr.forEach((weapon) => {
+      weapon.draw();
+    })
+    objectArray.forEach((object, objIndex) => {
+      object.draw();
+      if(hit(spaceship.x + spaceship.w/2, object.x + object.w/2, spaceship.y + spaceship.h/2, object.y + object.h/2, 60, object.w/2)) {
+        objectArray.splice(objIndex, 1);
+        shield -= 150;
+        score -= 300;
+      }      
+      weaponArr.forEach((weapon, weaponIndex) => {        
+        if (hit(weapon.x, object.x + object.w/2, weapon.y, object.y + object.h/2, 3, object.w/2)) {
+        objectArray.splice(objIndex, 1);
+        weaponArr.splice(weaponIndex, 1);
+        }
+      })
+      object.score();
+    })
+
+    
+
     animationId = requestAnimationFrame(updateCanvas)
     // GAME OVER
     if(shield <= 0) {
       gameOver();
     }
-    ;
 }
 
 /* document.addEventListener('keyup', (event) => {
@@ -353,3 +398,5 @@ document.addEventListener('keydown', (event) => {
       break;
   }
 });
+
+
