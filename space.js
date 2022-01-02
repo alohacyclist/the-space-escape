@@ -2,7 +2,6 @@ const canvas = document.querySelector('#canvas');
 const ctx = canvas.getContext('2d');
 
 const startBtn = document.querySelector('.startBtn');
-
 const startAgainBtn = document.querySelector('.startAgainBtn');
 const playerName = document.querySelector('.playerName');
 const submitBtn = document.querySelector('.submit');
@@ -21,13 +20,13 @@ let objectCircle = false;
 
 // some variables
 let animationId;
+let scoreName = '';
 let updates = 0;
 let level = 1;
 let shield = 500;
 let score = 0;
 let objectArray = [];
 const weaponArr = []; 
-let scoreName = '';
 const highscoreArr = JSON.parse(localStorage.getItem('highscores')) || [];
 
 // display game statistics
@@ -280,12 +279,13 @@ class Weapon {
 addEventListener('click', (event) => {
   const angle = Math.atan2(event.clientY - (spaceship.y + spaceship.h/2), event.clientX - (spaceship.x + spaceship.w/2));
   const velocity = {
-    x: Math.cos(angle),
-    y: Math.sin(angle)
-  }
+    x: Math.cos(angle) * 4,
+    y: Math.sin(angle) * 4
+  };
   const weapon = new Weapon(spaceship.x + spaceship.w/2, spaceship.y + spaceship.h/2, 5, 'red', velocity);
-  weaponArr.push(weapon)
+  weaponArr.push(weapon);
 })
+
 // removes weapons from array if they are out of screen bounds
 function deleteWeapon() {
   weaponArr.forEach((weapon, wIdx) => {
@@ -296,23 +296,38 @@ function deleteWeapon() {
 function hitCircles(x1, x2, y1, y2, r1, r2) {
   return (Math.hypot(x1 - x2, y1 - y2) <= r1 + r2);
 }
-// detects rectangle-circle collisions
-function hitRects(pointX, pointY, pointR, rectX, rectY, rectW, rectH) {
-  if(Math.abs(pointX - (rectX - rectW/2) > rectW/2 + pointR)) {
-    return false;
-  }
-  if(Math.abs(pointY - (rectY - rectH/2) > rectH/2 + pointR)) {
-    return false;
-  }
-  if(Math.abs(pointX - (rectX - rectW/2) <= rectW/2)) {
-    return true;
-  }
-  if(Math.abs(pointY - (rectY - rectH/2) <= rectH/2)) {
-    return true;
-  }
-  /* const dx = Math.abs(pointX - (rectX - rectW/2) - rectW/2);
-  const dy = Math.abs(pointY - (rectY - rectH/2) - rectH/2);
-  return (Math.pow(dx, 2) + Math.pow(dy, 2) <= Math.pow(pointR, 2))   */
+
+function createExplosion(x, y) {
+   ctx.fillStyle = 'darkred';
+   ctx.strokeStyle = 'darkred';
+   ctx.beginPath();
+   ctx.arc(x, y, 25, 0, Math.PI * 2, false);
+   ctx.fill();
+   ctx.stroke();
+   ctx.fillStyle = 'red';
+   ctx.strokeStyle = 'red';
+   ctx.beginPath();
+   ctx.arc(x, y, 20, 0, Math.PI * 2, false);
+   ctx.fill();
+   ctx.stroke();
+   ctx.fillStyle = 'orange';
+   ctx.strokeStyle = 'orange';
+   ctx.beginPath();
+   ctx.arc(x, y, 15, 0, Math.PI * 2, false);
+   ctx.fill();
+   ctx.stroke();
+   ctx.fillStyle = 'yellow';
+   ctx.strokeStyle = 'yellow';
+   ctx.beginPath();
+   ctx.arc(x, y, 10, 0, Math.PI * 2, false);
+   ctx.fill();
+   ctx.stroke();
+   ctx.fillStyle = 'white';
+   ctx.strokeStyle = 'white';
+   ctx.beginPath();
+   ctx.arc(x, y, 5, 0, Math.PI * 2, false);
+   ctx.fill();
+   ctx.stroke();
 }
   
 function updateCanvas() {
@@ -362,10 +377,12 @@ function updateCanvas() {
       }   
       weaponArr.forEach((weapon, weaponIndex) => {        
         if (hitCircles(weapon.x, object.x + object.w/2, weapon.y, object.y + object.h/2, 3, object.w/2) && level > 2) {
+        createExplosion(weapon.x, weapon.y);
         objectArray.splice(objIndex, 1);
         weaponArr.splice(weaponIndex, 1);
         score += 50;
         } else if (hitCircles(weapon.x, object.x + object.w/2, weapon.y, object.y + object.h/2, 3, object.w/2)) {
+          createExplosion(weapon.x, weapon.y);
           objectArray.splice(objIndex, 1);
           weaponArr.splice(weaponIndex, 1);
           score -= 150;
@@ -401,7 +418,6 @@ function updateCanvas() {
 document.addEventListener('keydown', (event) => {
   switch (event.keyCode) {
     case 37: // LEFT
-
       spaceship.velocity.x += spaceship.thrust;
       spaceship.x -= spaceship.velocity.x / 15;
       break;
