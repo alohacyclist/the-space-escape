@@ -22,7 +22,7 @@ let objectCircle = false;
 let animationId;
 let scoreName = '';
 let updates = 0;
-let level = 1;
+let level = 3;
 let shield = 500;
 let score = 0;
 let objectArray = [];
@@ -299,31 +299,26 @@ function hitCircles(x1, x2, y1, y2, r1, r2) {
 
 function createExplosion(x, y) {
    ctx.fillStyle = 'darkred';
-   ctx.strokeStyle = 'darkred';
    ctx.beginPath();
    ctx.arc(x, y, 25, 0, Math.PI * 2, false);
    ctx.fill();
    ctx.stroke();
    ctx.fillStyle = 'red';
-   ctx.strokeStyle = 'red';
    ctx.beginPath();
    ctx.arc(x, y, 20, 0, Math.PI * 2, false);
    ctx.fill();
    ctx.stroke();
    ctx.fillStyle = 'orange';
-   ctx.strokeStyle = 'orange';
    ctx.beginPath();
    ctx.arc(x, y, 15, 0, Math.PI * 2, false);
    ctx.fill();
    ctx.stroke();
    ctx.fillStyle = 'yellow';
-   ctx.strokeStyle = 'yellow';
    ctx.beginPath();
    ctx.arc(x, y, 10, 0, Math.PI * 2, false);
    ctx.fill();
    ctx.stroke();
    ctx.fillStyle = 'white';
-   ctx.strokeStyle = 'white';
    ctx.beginPath();
    ctx.arc(x, y, 5, 0, Math.PI * 2, false);
    ctx.fill();
@@ -370,18 +365,19 @@ function updateCanvas() {
     })
     objectArray.forEach((object, objIndex) => {
       object.draw();
-      if(hitCircles(spaceship.x + spaceship.w/2, object.x + object.w/2, spaceship.y + spaceship.h/2, object.y + object.h/2, 60, object.w/2)) {
+      if(hitCircles(spaceship.x + spaceship.w/2, object.x, spaceship.y + spaceship.h/2, object.y, 65, object.w/2)) {
+        createExplosion(object.x, object.y);
         objectArray.splice(objIndex, 1);
         shield -= 150;
         score -= 300;
       }   
       weaponArr.forEach((weapon, weaponIndex) => {        
-        if (hitCircles(weapon.x, object.x + object.w/2, weapon.y, object.y + object.h/2, 3, object.w/2) && level > 2) {
+        if (hitCircles(weapon.x, object.x, weapon.y, object.y, 10, object.w/2) && level > 2) {
         createExplosion(weapon.x, weapon.y);
         objectArray.splice(objIndex, 1);
         weaponArr.splice(weaponIndex, 1);
         score += 50;
-        } else if (hitCircles(weapon.x, object.x + object.w/2, weapon.y, object.y + object.h/2, 3, object.w/2)) {
+        } else if (hitCircles(weapon.x, object.x, weapon.y, object.y, 3, object.w/2)) {
           createExplosion(weapon.x, weapon.y);
           objectArray.splice(objIndex, 1);
           weaponArr.splice(weaponIndex, 1);
