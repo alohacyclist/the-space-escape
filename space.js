@@ -20,6 +20,7 @@ let objectCircle = false;
 
 // some variables
 let animationId;
+let textAlpha = 1;
 let scoreName = '';
 let newLevel = false;
 let updates = 0;
@@ -38,9 +39,12 @@ function dispalyStats() {
   ctx.fillText(`Score: ${score}`, 30, 60);
   ctx.fillText(`Shield: ${shield}`, 30, 90);
   if(newLevel) {
+    ctx.save();
+    textAlpha -= 0.01;
     ctx.font = '60px Arial',
-    ctx.fillStyle = 'white',
-    ctx.fillText(`Level: ${level}`, 450, 450)
+    ctx.fillStyle = `rgba(255, 255, 255, ${textAlpha})`;
+    ctx.fillText(`Level ${level}`, 450, 450);
+    ctx.restore();
   }
 }
 
@@ -187,8 +191,12 @@ function createObjects() {
 
 // Levels
 function levels() {
-  if(updates % 500 == 0) level++;
+  if(updates % 1000 == 0) {
+    level++;
+    newLevel = true;
+    setTimeout(() => { newLevel = false; textAlpha = 1 }, 1000)
     if (shield < 500) shield += 50;
+  }
 } 
 
 // Highscore
@@ -255,42 +263,47 @@ function startGame() {
 }
 
 class Weapon {
-  constructor(x, y, r, color, velocity) {
+  constructor(x, y, r, velocity) {
     this.x = x;
     this.y = y;
     this.r = r;
-    this.color = color;
+    this.color = 'rgba(73, 253, 84)';
     this.velocity = velocity;
+    this.alpha = 1;
   }
 
   move() {
     this.x = this.x + this.velocity.x;
     this.y = this.y + this.velocity.y;
+    this.alpha -= 0.01;
   }
 
   draw() {
-    this.move();    
+    this.move();
+    ctx.save();
+    ctx.globalAlpha = this.alpha;    
     ctx.beginPath();    
     ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
     ctx.fillStyle = this.color;
     ctx.fill();
+    ctx.restore();
   }
 }
 
 addEventListener('click', (event) => {
   const angle = Math.atan2(event.clientY - (spaceship.y + spaceship.h/2), event.clientX - (spaceship.x + spaceship.w/2));
   const velocity = {
-    x: Math.cos(angle) * 4,
-    y: Math.sin(angle) * 4
+    x: Math.cos(angle) * 5,
+    y: Math.sin(angle) * 5
   };
-  const weapon = new Weapon(spaceship.x + spaceship.w/2, spaceship.y + spaceship.h/2, 3, 'lime', velocity);
+  const weapon = new Weapon(spaceship.x + spaceship.w/2, spaceship.y + spaceship.h/2, 3, velocity);
   weaponArr.push(weapon);
 })
 
 // removes weapons from array if they are out of screen bounds
 function deleteWeapon() {
   weaponArr.forEach((weapon, wIdx) => {
-    if(weapon.x > canvas.width || weapon.x < 0 || weapon.y > canvas.height || weapon.y < 0) weaponArr.splice(wIdx, 1);
+    if(weapon.alpha < 0.1 || weapon.x > canvas.width || weapon.x < 0 || weapon.y > canvas.height || weapon.y < 0) weaponArr.splice(wIdx, 1);
   })
 }
 // detects circle-circle collisions
