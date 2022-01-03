@@ -33,11 +33,11 @@ const highscoreArr = JSON.parse(localStorage.getItem('highscores')) || [];
 
 // display game statistics
 function dispalyStats() {
-  ctx.font = '25px Arial';
+  ctx.font = '30px Arial';
   ctx.fillStyle = 'white';
-  ctx.fillText(`Level: ${level}`, 30, 30);
-  ctx.fillText(`Score: ${score}`, 30, 60);
-  ctx.fillText(`Shield: ${shield}`, 30, 90);
+  ctx.fillText(`Score: ${score}`, canvas.width/2 - 40, 30);
+  ctx.fillText(`Shield: ${shield}`, 30, 30);
+  ctx.fillText(`Highscore: ${highscoreArr[0].playerScore}`, canvas.width - 280, 30);
   if(newLevel) {
     ctx.save();
     textAlpha -= 0.01;
