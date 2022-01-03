@@ -21,12 +21,13 @@ let objectCircle = false;
 // some variables
 let animationId;
 let scoreName = '';
+let newLevel = false;
 let updates = 0;
-let level = 3;
+let level = 1;
 let shield = 500;
 let score = 0;
 let objectArray = [];
-const weaponArr = []; 
+const weaponArr = [];
 const highscoreArr = JSON.parse(localStorage.getItem('highscores')) || [];
 
 // display game statistics
@@ -36,28 +37,32 @@ function dispalyStats() {
   ctx.fillText(`Level: ${level}`, 30, 30);
   ctx.fillText(`Score: ${score}`, 30, 60);
   ctx.fillText(`Shield: ${shield}`, 30, 90);
+  if(newLevel) {
+    ctx.font = '60px Arial',
+    ctx.fillStyle = 'white',
+    ctx.fillText(`Level: ${level}`, 450, 450)
+  }
 }
 
 canvas.width = 1024;
 canvas.height = 1024;
-
+// background
 const level3bg = new Image();
 level3bg.src = './img/bgL3.png'
-
+// spaceship
 const spaceshipImg = new Image();
 spaceshipImg.src = './img/spaceship.png';
-
+// objects
 const asteroid = new Image();
 asteroid.src = './img/met1.png';
-
+const asteroid2 = new Image();
+asteroid2.src = './img/met2.png'
 const airplaneL = new Image();
 airplaneL.src = './img/airplaneL.png';
-
 const airplaneR = new Image();
 airplaneR.src = './img/airplaneR.png';
 
-
-// moving background
+// draw & move background
 const bgLevel3 = {
   img: level3bg,
   y: 0,
@@ -93,7 +98,7 @@ let spaceship = {
     }
 }
 
-// LEVEL 1 Obstacles
+// Obstacles
 class Objects {
   constructor (x, y, w, h, velocity, type, img) {
       this.img = img;
@@ -112,24 +117,24 @@ class Objects {
     if(level <= 3 && (this.x + this.w > canvas.width) && this.pointsCounted == false) {
       this.pointsCounted = true;
       score += 100;
-    } else if (this.type === 'asteroid' && this.y > canvas.height && this.pointsCounted == false) {
+    } else if ((this.type === 'asteroid' || this.type === 'asteroid2') && this.y > canvas.height && this.pointsCounted == false) {
       this.pointsCounted = true;
       score += 100;
     }
   }
   move() {
     this.a++;
-    if (this.type === 'airplane' || this.type === 'satellite' || this.type === 'bird' || this.type === 'balloon') {
+    if (this.type === 'airplane') {
       this.x += this.velocity;
-    } else if (this.type === 'asteroid' && level > 2 && level < 6 ) {
+    } else if (this.type === 'asteroid') {
       this.y += this.velocity;
-    } else if (this.type === 'asteroid' && level >= 6) {
+    } else if (this.type === 'asteroid2') {
       this.x += this.velocity;
-    }
+    } 
   }
   draw() {
       this.move();
-      if(this.type === 'asteroid'){
+      if(this.type === 'asteroid' || this.type === 'asteroid2') {
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.rotate(this.a * Math.PI/360);
@@ -144,7 +149,7 @@ class Objects {
 // random number function for sizing objects
 function calcRandomNum(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
-  }
+}
 
 //helper function -> create 3 objects
 const object1 = new Objects (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), 1, 'airplane', airplaneL)
@@ -173,21 +178,17 @@ function createObjects() {
   } else if (updates % 80 === 0 && level >= 6) {
     // left
     objectArray.push(new Objects
-      (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid', asteroid));
+      (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid2', asteroid2));
     // right
     objectArray.push(new Objects
-      (canvas.width + 100, calcRandomNum(0, canvas.height), calcRandomNum(100, 50), calcRandomNum(100, 50), -1, 'asteroid', asteroid))
+      (canvas.width + 100, calcRandomNum(0, canvas.height), calcRandomNum(100, 50), calcRandomNum(100, 50), -1, 'asteroid2', asteroid2))
   }
 }
 
 // Levels
 function levels() {
-  if(updates % 1500 == 0) {
-    level++;
-    if (shield < 500) {
-      shield += 50;
-    }
-  } 
+  if(updates % 500 == 0) level++;
+    if (shield < 500) shield += 50;
 } 
 
 // Highscore
@@ -229,7 +230,7 @@ function reset() {
   shield = 500;
   score = 0;
   objectArray = [];
-  submitBtn.style.display = 'inline'
+  submitBtn.style.display = 'inline';
 }
 
 function start() {
@@ -268,8 +269,8 @@ class Weapon {
   }
 
   draw() {
-    this.move();
-    ctx.beginPath();
+    this.move();    
+    ctx.beginPath();    
     ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
     ctx.fillStyle = this.color;
     ctx.fill();
@@ -282,7 +283,7 @@ addEventListener('click', (event) => {
     x: Math.cos(angle) * 4,
     y: Math.sin(angle) * 4
   };
-  const weapon = new Weapon(spaceship.x + spaceship.w/2, spaceship.y + spaceship.h/2, 5, 'red', velocity);
+  const weapon = new Weapon(spaceship.x + spaceship.w/2, spaceship.y + spaceship.h/2, 3, 'lime', velocity);
   weaponArr.push(weapon);
 })
 
@@ -335,31 +336,7 @@ function updateCanvas() {
 
     bgLevel3.draw();
     spaceship.draw();
-// DELETE LATER
-  if(spaceshipCircle) {
-    ctx.strokeStyle = 'salmon';
-    ctx.beginPath();
-    ctx.arc(spaceship.x + spaceship.w/2, spaceship.y + spaceship.h/2, 60, 0, Math.PI * 2, false);
-    ctx.stroke();
-  }
-  // airplane
-  if(objectCircle && level < 3) {
-    objectArray.forEach((object) => {
-    ctx.strokeStyle = 'lime';
-    ctx.beginPath();
-    ctx.arc(object.x + object.w/2, object.y + object.h/2, 40, 0, Math.PI * 2, false);
-    ctx.stroke();
-    })
-  // asteroid
-  } else if(objectCircle) {
-    objectArray.forEach((object) => {
-      ctx.strokeStyle = 'lime';
-      ctx.beginPath();
-      ctx.arc(object.x, object.y, 35, 0, Math.PI * 2, false);
-      ctx.stroke();
-    })
-  }
-    dispalyStats();
+
     weaponArr.forEach((weapon) => {
       weapon.draw();
     })
@@ -387,29 +364,14 @@ function updateCanvas() {
       object.score();
     })
 
+    dispalyStats();
+
     animationId = requestAnimationFrame(updateCanvas)
     // GAME OVER
     if(shield <= 0) {
       gameOver();
     }
 }
-
-/* document.addEventListener('keyup', (event) => {
-  switch (event.keyCode) {
-    case 37:
-      spaceship.x -= 0;
-      break;
-    case 38:
-      spaceship.y -= 0;
-      break;
-    case 39:
-      spaceship.x += 0;
-      break;
-    case 40:
-      spaceship.y += 0;
-      break;
-  }
-}); */
 
 document.addEventListener('keydown', (event) => {
   switch (event.keyCode) {
@@ -431,5 +393,20 @@ document.addEventListener('keydown', (event) => {
       break;
   }
 });
-
+/* document.addEventListener('keyup', (event) => {
+  switch (event.keyCode) {
+    case 37:
+      spaceship.x -= 0;
+      break;
+    case 38:
+      spaceship.y -= 0;
+      break;
+    case 39:
+      spaceship.x += 0;
+      break;
+    case 40:
+      spaceship.y += 0;
+      break;
+  }
+}); */
 
