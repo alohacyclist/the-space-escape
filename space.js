@@ -7,16 +7,11 @@ const playerName = document.querySelector('.playerName');
 const submitBtn = document.querySelector('.submit');
 const highScoreList = document.querySelector('.highScoreList');
 
-
 onload = function() {
     startBtn.onclick = function() {
       startGame();
     }
 }
-
-// HELPER VARIABLES
-let spaceshipCircle = false;
-let objectCircle = false;
 
 // some variables
 let animationId;
@@ -24,8 +19,9 @@ let textAlpha = 1;
 let scoreName = '';
 let newLevel = false;
 let updates = 0;
-let level = 1;
-let shield = 500;
+let level = 6;
+let difficulty = 100;
+let shield = 200;
 let score = 0;
 let objectArray = [];
 const weaponArr = [];
@@ -33,11 +29,25 @@ const highscoreArr = JSON.parse(localStorage.getItem('highscores')) || [];
 
 // display game statistics
 function dispalyStats() {
+  let gradient = ctx.createLinearGradient(30, 30, 200, 0);
+  gradient.addColorStop(0, 'rgba(207, 0, 15, 1)');
+  gradient.addColorStop(0.6, 'rgba(255, 240, 0, 1)');
+  gradient.addColorStop(1, 'rgba(0, 230, 64, 1)');
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(10, 10, shield, 30);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
+  ctx.strokeRect(10, 10, 200, 30);
+  
   ctx.font = '30px Arial';
   ctx.fillStyle = 'white';
-  ctx.fillText(`Score: ${score}`, canvas.width/2 - 40, 30);
-  ctx.fillText(`Shield: ${shield}`, 30, 30);
-  ctx.fillText(`Highscore: ${highscoreArr[0].playerScore}`, canvas.width - 280, 30);
+  ctx.fillText('Shield', 20, 35);
+  ctx.fillText(`Score: ${score}`, canvas.width/2 - 40, 35);
+  if(score > highscoreArr[0].playerScore) {
+    ctx.fillText(`Highscore: ${score}`, canvas.width - 280, 35);
+  } else {
+    ctx.fillText(`Highscore: ${highscoreArr[0].playerScore}`, canvas.width - 280, 35);
+  }
   if(newLevel) {
     ctx.save();
     textAlpha -= 0.01;
@@ -57,14 +67,16 @@ level3bg.src = './img/bgL3.png'
 const spaceshipImg = new Image();
 spaceshipImg.src = './img/spaceship.png';
 // objects
-const asteroid = new Image();
-asteroid.src = './img/met1.png';
-const asteroid2 = new Image();
-asteroid2.src = './img/met2.png'
 const airplaneL = new Image();
 airplaneL.src = './img/airplaneL.png';
 const airplaneR = new Image();
 airplaneR.src = './img/airplaneR.png';
+const asteroid = new Image();
+asteroid.src = './img/met1.png';
+const asteroid2 = new Image();
+asteroid2.src = './img/met2.png';
+const asteroid3 = new Image();
+asteroid3.src = './img/met3.png';
 
 // draw & move background
 const bgLevel3 = {
@@ -121,7 +133,7 @@ class Objects {
     if(level <= 3 && (this.x + this.w > canvas.width) && this.pointsCounted == false) {
       this.pointsCounted = true;
       score += 100;
-    } else if ((this.type === 'asteroid' || this.type === 'asteroid2') && this.y > canvas.height && this.pointsCounted == false) {
+    } else if ((this.type === 'asteroid' || this.type === 'asteroid2' || this.type === 'asteroid3') && this.y > canvas.height && this.pointsCounted == false) {
       this.pointsCounted = true;
       score += 100;
     }
@@ -134,11 +146,13 @@ class Objects {
       this.y += this.velocity;
     } else if (this.type === 'asteroid2') {
       this.x += this.velocity;
-    } 
+    } else if (this.type === 'asteroid3') {
+      this.y -= this.velocity;
+    }
   }
   draw() {
       this.move();
-      if(this.type === 'asteroid' || this.type === 'asteroid2') {
+      if(this.type === 'asteroid' || this.type === 'asteroid2' || this.type === 'asteroid3') {
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.rotate(this.a * Math.PI/360);
@@ -162,31 +176,54 @@ const object3 = new Objects (0 - 180, calcRandomNum(0, canvas.height), calcRando
 
 // create objects from left
 function createObjects() {
-  if (updates % 100 === 0 && level == 1) {   
+  if (updates % difficulty === 0 && level == 1) {   
     objectArray.push(new Objects
       (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), 1, 'airplane', airplaneL));
-  } else if (updates % 80 === 0 && level == 2) {
+  } else if (updates % difficulty === 0 && level == 2) {
     Math.random() < 0.5 ? objectArray.push(new Objects
       (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), 1, 'airplane', airplaneL)) :
       objectArray.push(new Objects
         (canvas.width + 100, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), -1, 'airplane', airplaneR)); 
-  } else if (updates % 80 === 0 && level == 3 ) {
+  } else if (updates % difficulty === 0 && level == 3 ) {
     objectArray.push(new Objects
       (calcRandomNum(0, canvas.width), 0 - 100, calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid', asteroid));
-  } else if (updates % 60 === 0 && level == 4) {
+  } else if (updates % difficulty === 0 && level == 4) {
     objectArray.push(new Objects
       (calcRandomNum(0, canvas.width), 0 - 100, calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid', asteroid));
-  } else if (updates % 40 === 0 && level == 5) {
+  } else if (updates % difficulty === 0 && level == 5) {
     objectArray.push(new Objects
       (calcRandomNum(0, canvas.width), 0 - 100, calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid', asteroid));
-  } else if (updates % 80 === 0 && level >= 6) {
+  } else if (updates % difficulty === 0 && level == 6) {
     // left
     objectArray.push(new Objects
       (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid2', asteroid2));
     // right
     objectArray.push(new Objects
-      (canvas.width + 100, calcRandomNum(0, canvas.height), calcRandomNum(100, 50), calcRandomNum(100, 50), -1, 'asteroid2', asteroid2))
-  }
+      (canvas.width + 100, calcRandomNum(0, canvas.height), calcRandomNum(100, 50), calcRandomNum(100, 50), -1, 'asteroid2', asteroid2));
+  } else if (updates % difficulty === 0 && level == 7) {
+    // top
+    objectArray.push(new Objects
+      (calcRandomNum(0, canvas.width), 0 - 100, calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid', asteroid));
+    // left
+    objectArray.push(new Objects
+      (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid2', asteroid2));
+    // right
+    objectArray.push(new Objects
+      (canvas.width + 100, calcRandomNum(0, canvas.height), calcRandomNum(100, 50), calcRandomNum(100, 50), -1, 'asteroid2', asteroid2));
+  } else if (updates % difficulty === 0 && level >= 8) {
+    // top
+    objectArray.push(new Objects
+      (calcRandomNum(0, canvas.width), 0 - 100, calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid', asteroid));
+    // left
+    objectArray.push(new Objects
+      (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid2', asteroid2));
+    // right
+    objectArray.push(new Objects
+      (canvas.width + 100, calcRandomNum(0, canvas.height), calcRandomNum(100, 50), calcRandomNum(100, 50), -1, 'asteroid2', asteroid2));
+    // bottom
+    objectArray.push(new Objects
+      (calcRandomNum(0, canvas.width), canvas.height + 100, calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid3', asteroid3));
+  } 
 }
 
 // Levels
@@ -194,8 +231,9 @@ function levels() {
   if(updates % 1000 == 0) {
     level++;
     newLevel = true;
+    difficulty -= 10;
     setTimeout(() => { newLevel = false; textAlpha = 1 }, 1000)
-    if (shield < 500) shield += 50;
+    if (shield < 200) shield += 20;
   }
 } 
 
@@ -235,7 +273,8 @@ function reset() {
   spaceship.y = canvas.height/2;
   updates = 0;
   level = 1;
-  shield = 500;
+  difficulty = 100;
+  shield = 200;
   score = 0;
   objectArray = [];
   submitBtn.style.display = 'inline';
@@ -358,7 +397,7 @@ function updateCanvas() {
       if(hitCircles(spaceship.x + spaceship.w/2, object.x, spaceship.y + spaceship.h/2, object.y, 65, object.w/2)) {
         createExplosion(object.x, object.y);
         objectArray.splice(objIndex, 1);
-        shield -= 150;
+        shield -= 30;
         score -= 300;
       }   
       weaponArr.forEach((weapon, weaponIndex) => {        
