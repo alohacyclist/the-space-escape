@@ -43,10 +43,13 @@ function dispalyStats() {
   ctx.fillStyle = 'white';
   ctx.fillText('Shield', 20, 35);
   ctx.fillText(`Score: ${score}`, canvas.width/2 - 40, 35);
-  if(score > highscoreArr[0].playerScore) {
-    ctx.fillText(`Highscore: ${score}`, canvas.width - 280, 35);
-  } else {
+  if(highscoreArr[0].playerScore) {
     ctx.fillText(`Highscore: ${highscoreArr[0].playerScore}`, canvas.width - 280, 35);
+    if(score > highscoreArr[0].playerScore) {
+      highscoreArr[0].playerScore = score;
+    }
+  } else {
+    ctx.fillText(`Highscore: ${score}`, canvas.width - 280, 35);
   }
   if(newLevel) {
     ctx.save();
