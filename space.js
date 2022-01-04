@@ -24,19 +24,20 @@ let difficulty = 100;
 let shield = 200;
 let score = 0;
 let objectArray = [];
-const weaponArr = [];
+let weaponArr = [];
+let explosionArr = [];
 const highscoreArr = JSON.parse(localStorage.getItem('highscores')) || [];
 
 // display game statistics
 function dispalyStats() {
   let gradient = ctx.createLinearGradient(30, 30, 200, 0);
-  gradient.addColorStop(0, 'rgba(207, 0, 15, 1)');
-  gradient.addColorStop(0.6, 'rgba(255, 240, 0, 1)');
-  gradient.addColorStop(1, 'rgba(0, 230, 64, 1)');
+  gradient.addColorStop(0, 'rgb(207, 0, 15)');
+  gradient.addColorStop(0.6, 'rgb(255, 240, 0)');
+  gradient.addColorStop(1, 'rgb(0, 230, 64)');
 
   ctx.fillStyle = gradient;
   ctx.fillRect(10, 10, shield, 30);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
+  ctx.strokeStyle = 'rgb(255, 255, 255)';
   ctx.strokeRect(10, 10, 200, 30);
   
   ctx.font = '30px Arial';
@@ -64,8 +65,8 @@ function dispalyStats() {
 canvas.width = 1024;
 canvas.height = 1024;
 // background
-const level3bg = new Image();
-level3bg.src = './img/bgL3.png'
+const backgroundImg = new Image();
+backgroundImg.src = './img/bgL3.png'
 // spaceship
 const spaceshipImg = new Image();
 spaceshipImg.src = './img/spaceship.png';
@@ -80,10 +81,12 @@ const asteroid2 = new Image();
 asteroid2.src = './img/met2.png';
 const asteroid3 = new Image();
 asteroid3.src = './img/met3.png';
+// sounds
+
 
 // draw & move background
-const bgLevel3 = {
-  img: level3bg,
+const background = {
+  img: backgroundImg,
   y: 0,
   speed: 1.3,
   move: function () {
@@ -281,6 +284,7 @@ function reset() {
   score = 0;
   objectArray = [];
   weaponArr = [];
+  explosionArr = [];
   submitBtn.style.display = 'inline';
 }
 
@@ -310,7 +314,7 @@ class Weapon {
     this.x = x;
     this.y = y;
     this.r = r;
-    this.color = 'rgba(73, 253, 84)';
+    this.color = 'rgb(73, 253, 84)';
     this.velocity = velocity;
     this.alpha = 1;
   }
@@ -333,6 +337,35 @@ class Weapon {
   }
 }
 
+class Explosion {
+  constructor(x, y, r, velocity) {
+    this.x = x;
+    this.y = y;
+    this.r = r;
+    this.color = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, 300);
+    this.color.addColorStop(0, `rgb(255, 255, 0, 1`);
+    this.color.addColorStop(0.4, `rgb(255, 140, 0, 0.6`);
+    this.color.addColorStop(0.9, `rgb(207, 0, 15, 0.1`);
+    this.velocity = velocity;
+
+  }
+
+  move() {
+    this.x = this.x + this.velocity.x;
+    this.y = this.y + this.velocity.y;
+  }
+
+  draw() {
+    this.move();
+    ctx.save();
+    ctx.beginPath();    
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
 addEventListener('click', (event) => {
   const angle = Math.atan2(event.clientY - (spaceship.y + spaceship.h/2), event.clientX - (spaceship.x + spaceship.w/2));
   const velocity = {
@@ -345,41 +378,16 @@ addEventListener('click', (event) => {
 
 // removes weapons from array if they are out of screen bounds
 function deleteWeapon() {
-  weaponArr.forEach((weapon, wIdx) => {
-    if(weapon.alpha < 0.1 || weapon.x > canvas.width || weapon.x < 0 || weapon.y > canvas.height || weapon.y < 0) weaponArr.splice(wIdx, 1);
+  weaponArr.forEach((weapon, index) => {
+    if(weapon.alpha < 0.1 || weapon.x > canvas.width || weapon.x < 0 || weapon.y > canvas.height || weapon.y < 0) weaponArr.splice(index, 1);
+  })
+  explosionArr.forEach((explosion, index) => {
+    if(explosion.x > canvas.width || explosion.x < 0 || explosion.y > canvas.height || explosion.y < 0) explosionArr.splice(index, 1)
   })
 }
 // detects circle-circle collisions
 function hitCircles(x1, x2, y1, y2, r1, r2) {
   return (Math.hypot(x1 - x2, y1 - y2) <= r1 + r2);
-}
-
-function createExplosion(x, y) {
-   ctx.fillStyle = 'darkred';
-   ctx.beginPath();
-   ctx.arc(x, y, 25, 0, Math.PI * 2, false);
-   ctx.fill();
-   ctx.stroke();
-   ctx.fillStyle = 'red';
-   ctx.beginPath();
-   ctx.arc(x, y, 20, 0, Math.PI * 2, false);
-   ctx.fill();
-   ctx.stroke();
-   ctx.fillStyle = 'orange';
-   ctx.beginPath();
-   ctx.arc(x, y, 15, 0, Math.PI * 2, false);
-   ctx.fill();
-   ctx.stroke();
-   ctx.fillStyle = 'yellow';
-   ctx.beginPath();
-   ctx.arc(x, y, 10, 0, Math.PI * 2, false);
-   ctx.fill();
-   ctx.stroke();
-   ctx.fillStyle = 'white';
-   ctx.beginPath();
-   ctx.arc(x, y, 5, 0, Math.PI * 2, false);
-   ctx.fill();
-   ctx.stroke();
 }
   
 function updateCanvas() {
@@ -390,7 +398,7 @@ function updateCanvas() {
     createObjects();
     deleteWeapon();
 
-    bgLevel3.draw();
+    background.draw();
     spaceship.draw();
 
     weaponArr.forEach((weapon) => {
@@ -399,27 +407,32 @@ function updateCanvas() {
     objectArray.forEach((object, objIndex) => {
       object.draw();
       if(hitCircles(spaceship.x + spaceship.w/2, object.x, spaceship.y + spaceship.h/2, object.y, 65, object.w/2)) {
-        createExplosion(object.x, object.y);
         objectArray.splice(objIndex, 1);
         shield -= 30;
         score -= 300;
       }   
       weaponArr.forEach((weapon, weaponIndex) => {        
         if (hitCircles(weapon.x, object.x, weapon.y, object.y, 10, object.w/2) && level > 2) {
-        createExplosion(weapon.x, weapon.y);
+        for(let i = 0; i <= 10; i++) {
+          explosionArr.push(new Explosion(weapon.x, weapon.y, 3, {x: Math.random() -0.5, y: Math.random() -0.5}))
+        }       
         objectArray.splice(objIndex, 1);
         weaponArr.splice(weaponIndex, 1);
         score += 50;
         } else if (hitCircles(weapon.x, object.x, weapon.y, object.y, 3, object.w/2)) {
-          createExplosion(weapon.x, weapon.y);
           objectArray.splice(objIndex, 1);
           weaponArr.splice(weaponIndex, 1);
           score -= 150;
           }
       })
+      explosionArr.forEach((explosion, index) => {
+        explosion.draw();
+        if(explosionArr.length > 30) { 
+        }        
+      })
       object.score();
     })
-
+    
     dispalyStats();
 
     animationId = requestAnimationFrame(updateCanvas)
