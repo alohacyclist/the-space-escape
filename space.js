@@ -169,8 +169,10 @@ class Objects {
       y: Math.sin(angle) * 3.5
     };
     const enemyWeapon = new Weapon(this.x + this.w/2, this.y + this.h/2, 3, velocity);
-    if(updates % )
-    enemyArr.push(enemyWeapon);
+    if(updates % 50 === 0) {
+      enemyArr.push(enemyWeapon);
+    }
+    
     
   }
    draw() {
