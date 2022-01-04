@@ -169,9 +169,8 @@ class Objects {
       y: Math.sin(angle) * 3.5
     };
     const enemyWeapon = new Weapon(this.x + this.w/2, this.y + this.h/2, 3, velocity);
-    if(updates % 100 === 0) {
-      enemyArr.push(enemyWeapon);
-    }
+    if(updates % )
+    enemyArr.push(enemyWeapon);
     
   }
    draw() {
@@ -247,7 +246,7 @@ function createObjects() {
     // bottom
     objectArray.push(new Objects
       (calcRandomNum(0, canvas.width), canvas.height + 100, calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid3', asteroid3));
-  } else if (updates % difficulty === 0 && level > 8) {
+  } else if (updates % difficulty === 0 && level > 8 && objectArray.length <= 10) {
     objectArray.push(new Objects
       (calcRandomNum(0, canvas.width), 0 - 100, 65, 65, 1, 'enemy', ufoY));
   }
@@ -425,12 +424,17 @@ function updateCanvas() {
     background.draw();
     spaceship.draw();
 
+    if(level > 8 && objectArray.length > 0) {
+       objectArray[Math.floor(Math.random() * objectArray.length)].shoot() 
+    };
+
+
     weaponArr.forEach((weapon) => {
       weapon.draw();
     })
     objectArray.forEach((object, objIndex) => {
       object.draw();
-      if(level > 8) { object.shoot() };
+
       if(hitCircles(spaceship.x + spaceship.w/2, object.x, spaceship.y + spaceship.h/2, object.y, 65, object.w/2)) {
         for(let i = 0; i <= 10; i++) {
           explosionArr.push(new Explosion(object.x + object.w/2, object.y + object.h/2, 3, {x: Math.random() -0.5, y: Math.random() -0.5}))
