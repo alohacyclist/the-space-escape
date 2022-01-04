@@ -19,13 +19,14 @@ let textAlpha = 1;
 let scoreName = '';
 let newLevel = false;
 let updates = 0;
-let level = 6;
+let level = 9;
 let difficulty = 100;
 let shield = 200;
 let score = 0;
 let objectArray = [];
 let weaponArr = [];
 let explosionArr = [];
+let enemyArr = [];
 const highscoreArr = JSON.parse(localStorage.getItem('highscores')) || [];
 
 // display game statistics
@@ -81,6 +82,9 @@ const asteroid2 = new Image();
 asteroid2.src = './img/met2.png';
 const asteroid3 = new Image();
 asteroid3.src = './img/met3.png';
+// enemies
+const ufoY = new Image();
+ufoY.src = './img/ufoYellow.png';
 // sounds
 
 
@@ -109,7 +113,7 @@ let spaceship = {
     h: 100,
     // angle
     a: 0,  
-    thrust: 2.5,
+    thrust: 1.5,
     isThrusting: false,
     velocity: {
       x: 0,
@@ -129,26 +133,28 @@ class Objects {
       this.w = w;
       this.h = h;
       this.a = Math.random() * 360;
-      this.rotation = Math.random() < 0.5 ? -1 : 1;
       this.velocity = velocity;
       this.type = type;
       this.collisionCounted = false;
       this.pointsCounted = false;
   }
   score() {
-    if(level <= 3 && (this.x + this.w > canvas.width) && this.pointsCounted == false) {
+    if(level <= 3 && (this.x + this.w > canvas.width)  && this.pointsCounted == false) {
       this.pointsCounted = true;
       score += 100;
-    } else if ((this.type === 'asteroid' || this.type === 'asteroid2' || this.type === 'asteroid3') && this.y > canvas.height && this.pointsCounted == false) {
+    } else if (level > 3 && level < 6 && (this.y > canvas.height) && (this.type === 'asteroid' || this.type === 'asteroid2' || this.type === 'asteroid3') && this.pointsCounted == false) {
       this.pointsCounted = true;
       score += 100;
+    } else if (this.type === 'enemy' && this.pointsCounted == false) {
+      this.pointsCounted = true;
+      score += 200;
     }
   }
   move() {
     this.a++;
     if (this.type === 'airplane') {
       this.x += this.velocity;
-    } else if (this.type === 'asteroid') {
+    } else if (this.type === 'asteroid' || this.type === 'enemy') {
       this.y += this.velocity;
     } else if (this.type === 'asteroid2') {
       this.x += this.velocity;
@@ -156,9 +162,21 @@ class Objects {
       this.y -= this.velocity;
     }
   }
-  draw() {
-      this.move();
-      if(this.type === 'asteroid' || this.type === 'asteroid2' || this.type === 'asteroid3') {
+  shoot() {
+    let angle = Math.atan2(spaceship.y + spaceship.h/2 - (this.y + this.h/2), spaceship.x + spaceship.w/2 - (this.x + this.w/2));
+    let velocity = {
+      x: Math.cos(angle) * 3.5,
+      y: Math.sin(angle) * 3.5
+    };
+    const enemyWeapon = new Weapon(this.x + this.w/2, this.y + this.h/2, 3, velocity);
+    if(updates % 100 === 0) {
+      enemyArr.push(enemyWeapon);
+    }
+    
+  }
+   draw() {
+      this.move();     
+      if(this.type === 'asteroid' || this.type === 'asteroid2' || this.type === 'asteroid3' || this.type === 'enemy') {
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.rotate(this.a * Math.PI/360);
@@ -216,7 +234,7 @@ function createObjects() {
     // right
     objectArray.push(new Objects
       (canvas.width + 100, calcRandomNum(0, canvas.height), calcRandomNum(100, 50), calcRandomNum(100, 50), -1, 'asteroid2', asteroid2));
-  } else if (updates % difficulty === 0 && level >= 8) {
+  } else if (updates % difficulty === 0 && level == 8) {
     // top
     objectArray.push(new Objects
       (calcRandomNum(0, canvas.width), 0 - 100, calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid', asteroid));
@@ -229,7 +247,10 @@ function createObjects() {
     // bottom
     objectArray.push(new Objects
       (calcRandomNum(0, canvas.width), canvas.height + 100, calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid3', asteroid3));
-  } 
+  } else if (updates % difficulty === 0 && level > 8) {
+    objectArray.push(new Objects
+      (calcRandomNum(0, canvas.width), 0 - 100, 65, 65, 1, 'enemy', ufoY));
+  }
 }
 
 // Levels
@@ -238,7 +259,7 @@ function levels() {
     level++;
     newLevel = true;
     difficulty -= 10;
-    setTimeout(() => { newLevel = false; textAlpha = 1 }, 1000)
+    setTimeout(() => { newLevel = false; textAlpha = 1 }, 1300)
     if (shield < 200) shield += 20;
   }
 } 
@@ -306,6 +327,7 @@ function gameOver() {
 }
 
 function startGame() {
+  // reset();
   start();
 }
 
@@ -347,7 +369,6 @@ class Explosion {
     this.color.addColorStop(0.4, `rgb(255, 140, 0, 0.6`);
     this.color.addColorStop(0.9, `rgb(207, 0, 15, 0.1`);
     this.velocity = velocity;
-
   }
 
   move() {
@@ -380,6 +401,9 @@ addEventListener('click', (event) => {
 function deleteWeapon() {
   weaponArr.forEach((weapon, index) => {
     if(weapon.alpha < 0.1 || weapon.x > canvas.width || weapon.x < 0 || weapon.y > canvas.height || weapon.y < 0) weaponArr.splice(index, 1);
+  });
+  enemyArr.forEach((weapon, index) => {
+    if(weapon.alpha < 0.1) enemyArr.splice(index, 1);
   })
   explosionArr.forEach((explosion, index) => {
     if(explosion.x > canvas.width || explosion.x < 0 || explosion.y > canvas.height || explosion.y < 0) explosionArr.splice(index, 1)
@@ -406,7 +430,11 @@ function updateCanvas() {
     })
     objectArray.forEach((object, objIndex) => {
       object.draw();
+      if(level > 8) { object.shoot() };
       if(hitCircles(spaceship.x + spaceship.w/2, object.x, spaceship.y + spaceship.h/2, object.y, 65, object.w/2)) {
+        for(let i = 0; i <= 10; i++) {
+          explosionArr.push(new Explosion(object.x + object.w/2, object.y + object.h/2, 3, {x: Math.random() -0.5, y: Math.random() -0.5}))
+        }  
         objectArray.splice(objIndex, 1);
         shield -= 30;
         score -= 300;
@@ -420,16 +448,21 @@ function updateCanvas() {
         weaponArr.splice(weaponIndex, 1);
         score += 50;
         } else if (hitCircles(weapon.x, object.x, weapon.y, object.y, 3, object.w/2)) {
+          for(let i = 0; i <= 10; i++) {
+            explosionArr.push(new Explosion(weapon.x, weapon.y, 3, {x: Math.random() -0.5, y: Math.random() -0.5}))
+          }  
           objectArray.splice(objIndex, 1);
           weaponArr.splice(weaponIndex, 1);
           score -= 150;
           }
       })
-      explosionArr.forEach((explosion, index) => {
+      explosionArr.forEach(explosion => {
         explosion.draw();
-        if(explosionArr.length > 30) { 
-        }        
       })
+      enemyArr.forEach(enemy => { 
+        enemy.draw(); 
+      })
+
       object.score();
     })
     
