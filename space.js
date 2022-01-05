@@ -19,7 +19,7 @@ let textAlpha = 1;
 let scoreName = '';
 let newLevel = false;
 let updates = 0;
-let level = 8;
+let level = 9;
 let difficulty = 100;
 let shield = 200;
 let score = 0;
@@ -28,6 +28,33 @@ let weaponArr = [];
 let explosionArr = [];
 let enemyArr = [];
 const highscoreArr = JSON.parse(localStorage.getItem('highscores')) || [];
+let spaceshipWeaponColor = 'rgb(73, 253, 84)';
+let enemyWeaponColor = 'rgb(255, 20, 247)'
+
+// canvas size
+canvas.width = 1024;
+canvas.height = 1024;
+// background
+const backgroundImg = new Image();
+backgroundImg.src = './img/bgL3.png'
+// spaceship
+const spaceshipImg = new Image();
+spaceshipImg.src = './img/spaceship.png';
+// objects
+const airplaneL = new Image();
+airplaneL.src = './img/airplaneL.png';
+const airplaneR = new Image();
+airplaneR.src = './img/airplaneR.png';
+const asteroid = new Image();
+asteroid.src = './img/met1.png';
+const asteroid2 = new Image();
+asteroid2.src = './img/met2.png';
+const asteroid3 = new Image();
+asteroid3.src = './img/met3.png';
+// enemies
+const ufoY = new Image();
+ufoY.src = './img/ufoYellow.png';
+// sounds
 
 // display game statistics
 function dispalyStats() {
@@ -62,31 +89,10 @@ function dispalyStats() {
     ctx.restore();
   }
 }
-
-canvas.width = 1024;
-canvas.height = 1024;
-// background
-const backgroundImg = new Image();
-backgroundImg.src = './img/bgL3.png'
-// spaceship
-const spaceshipImg = new Image();
-spaceshipImg.src = './img/spaceship.png';
-// objects
-const airplaneL = new Image();
-airplaneL.src = './img/airplaneL.png';
-const airplaneR = new Image();
-airplaneR.src = './img/airplaneR.png';
-const asteroid = new Image();
-asteroid.src = './img/met1.png';
-const asteroid2 = new Image();
-asteroid2.src = './img/met2.png';
-const asteroid3 = new Image();
-asteroid3.src = './img/met3.png';
-// enemies
-const ufoY = new Image();
-ufoY.src = './img/ufoYellow.png';
-// sounds
-
+// random number function for sizing objects
+function calcRandomNum(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
 
 // draw & move background
 const background = {
@@ -113,8 +119,7 @@ let spaceship = {
     h: 100,
     // angle
     a: 0,  
-    thrust: 1.5,
-    isThrusting: false,
+    thrust: 2.5,
     velocity: {
       x: 0,
       y: 0
@@ -169,7 +174,7 @@ class Objects {
     }
     
     if(updates % 30 === 0) {
-      const enemyWeapon = new Weapon(this.x + this.w/2, this.y + this.h/2, 3, speed);
+      const enemyWeapon = new Weapon(this.x + this.w/2, this.y + this.h/2, 3, speed, enemyWeaponColor);
       enemyArr.push(enemyWeapon);
     }
   }
@@ -187,12 +192,74 @@ class Objects {
   }
 }
 
-// random number function for sizing objects
-function calcRandomNum(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
+class Weapon {
+  constructor(x, y, r, velocity, color) {
+    this.x = x;
+    this.y = y;
+    this.r = r;
+    this.color = color;
+    this.velocity = velocity;
+    this.alpha = 1;
+  }
+
+  move() {
+    this.x += this.velocity.x;
+    this.y += this.velocity.y;
+    this.alpha -= 0.008;
+  }
+
+  draw() {
+    this.move();
+    ctx.save();
+    ctx.globalAlpha = this.alpha;    
+    ctx.beginPath();    
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  drawEnemyWeapon() {
+    this.move();
+    ctx.save();
+    ctx.globalAlpha = this.alpha;    
+    ctx.beginPath();    
+    ctx.arc(this.x, this.y, this.r += 0.1, 0, Math.PI * 2, false);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.restore();
+  }
 }
 
-// create objects from left
+class Explosion {
+  constructor(x, y, r, velocity) {
+    this.x = x;
+    this.y = y;
+    this.r = r;
+    this.color = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, 300);
+    this.color.addColorStop(0, `rgb(255, 255, 0, 1`);
+    this.color.addColorStop(0.4, `rgb(255, 140, 0, 0.6`);
+    this.color.addColorStop(0.9, `rgb(207, 0, 15, 0.1`);
+    this.velocity = velocity;
+  }
+
+  move() {
+    this.x = this.x + this.velocity.x;
+    this.y = this.y + this.velocity.y;
+  }
+
+  draw() {
+    this.move();
+    ctx.save();
+    ctx.beginPath();    
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+// Level logic
 function createObjects() {
   if (updates % difficulty === 0 && level == 1) {   
     objectArray.push(new Objects
@@ -247,7 +314,7 @@ function createObjects() {
   }
 }
 
-// Levels
+// create new levels
 function levels() {
   if(updates % 1000 == 0) {
     level++;
@@ -256,7 +323,18 @@ function levels() {
     setTimeout(() => { newLevel = false; textAlpha = 1 }, 1300)
     if (shield < 200) shield += 20;
   }
-} 
+}
+
+// gameover
+function gameOver() {
+  cancelAnimationFrame(animationId);
+  canvas.style.display = 'none';
+  endScreen.style.display = 'flex';
+  startAgainBtn.onclick = function() {
+    reset();
+    start();
+    }
+}
 
 // Highscore
 function enterHighscore() {
@@ -288,7 +366,7 @@ submitBtn.onclick = () => {
   submitBtn.style.display = 'none';
 }
 
-// new Game reset
+// new game reset
 function reset() {
   spaceship.x = canvas.width/2;
   spaceship.y = canvas.height/2;
@@ -304,6 +382,7 @@ function reset() {
   submitBtn.style.display = 'inline';
 }
 
+// start new game
 function start() {
   endScreen.style.display = 'none';
   startScreen.style.display = 'none';
@@ -311,84 +390,19 @@ function start() {
   updateCanvas();
 }
 
-function gameOver() {
-  cancelAnimationFrame(animationId);
-  canvas.style.display = 'none';
-  endScreen.style.display = 'flex';
-  startAgainBtn.onclick = function() {
-    reset();
-    start();
-    }
-}
-
 function startGame() {
   //reset();
   start();
 }
 
-class Weapon {
-  constructor(x, y, r, velocity) {
-    this.x = x;
-    this.y = y;
-    this.r = r;
-    this.color = 'rgb(73, 253, 84)';
-    this.velocity = velocity;
-    this.alpha = 1;
-  }
-
-  move() {
-    this.x += this.velocity.x;
-    this.y += this.velocity.y;
-    this.alpha -= 0.008;
-  }
-
-  draw() {
-    this.move();
-    ctx.save();
-    ctx.globalAlpha = this.alpha;    
-    ctx.beginPath();    
-    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
-    ctx.fillStyle = this.color;
-    ctx.fill();
-    ctx.restore();
-  }
-}
-
-class Explosion {
-  constructor(x, y, r, velocity) {
-    this.x = x;
-    this.y = y;
-    this.r = r;
-    this.color = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, 300);
-    this.color.addColorStop(0, `rgb(255, 255, 0, 1`);
-    this.color.addColorStop(0.4, `rgb(255, 140, 0, 0.6`);
-    this.color.addColorStop(0.9, `rgb(207, 0, 15, 0.1`);
-    this.velocity = velocity;
-  }
-
-  move() {
-    this.x = this.x + this.velocity.x;
-    this.y = this.y + this.velocity.y;
-  }
-
-  draw() {
-    this.move();
-    ctx.save();
-    ctx.beginPath();    
-    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
-    ctx.fillStyle = this.color;
-    ctx.fill();
-    ctx.restore();
-  }
-}
-
+// shooting on mouseclick
 addEventListener('click', (event) => {
   const angle = Math.atan2(event.clientY - (spaceship.y + spaceship.h/2), event.clientX - (spaceship.x + spaceship.w/2));
   const velocity = {
     x: Math.cos(angle) * 5,
     y: Math.sin(angle) * 5
   };
-  const weapon = new Weapon(spaceship.x + spaceship.w/2, spaceship.y + spaceship.h/2, 3, velocity);
+  const weapon = new Weapon(spaceship.x + spaceship.w/2, spaceship.y + spaceship.h/2, 3, velocity, spaceshipWeaponColor);
   weaponArr.push(weapon);
 })
 
@@ -404,11 +418,13 @@ function deleteWeapon() {
     if(explosion.x > canvas.width || explosion.x < 0 || explosion.y > canvas.height || explosion.y < 0) explosionArr.splice(index, 1)
   })
 }
+
 // detects circle-circle collisions
 function hitCircles(x1, x2, y1, y2, r1, r2) {
   return (Math.hypot(x1 - x2, y1 - y2) <= r1 + r2);
 }
-  
+
+// update canvas
 function updateCanvas() {
     updates++;
     ctx.clearRect(0, 0, canvas.width, canvas.height); 
@@ -423,9 +439,10 @@ function updateCanvas() {
     if(level > 9 && objectArray.length > 0) {
        objectArray[Math.floor(Math.random() * objectArray.length)].shoot();
     }
-    enemyArr.forEach((enemy, index) => { 
-      enemy.draw();
 
+    enemyArr.forEach((enemy, index) => { 
+      enemy.drawEnemyWeapon();
+      
       if(hitCircles(spaceship.x + spaceship.w/2, enemy.x, spaceship.y + spaceship.h/2, enemy.y, 18, 18)) {
         for(let i = 0; i <= 10; i++) {
           explosionArr.push(new Explosion(enemy.x, enemy.y, 3, {x: Math.random() -0.5, y: Math.random() -0.5}))
@@ -436,8 +453,17 @@ function updateCanvas() {
       }
     })
 
-    weaponArr.forEach((weapon) => {
+    weaponArr.forEach((weapon, weaponIndex) => {
       weapon.draw();
+      enemyArr.forEach((enemyWeapon, index) => {
+        if(hitCircles(enemyWeapon.x, weapon.x, enemyWeapon.y, weapon.y, 18, 18)) {
+          for(let i = 0; i <= 10; i++) {
+            explosionArr.push(new Explosion(enemyWeapon.x, enemyWeapon.y, 3, {x: Math.random() -0.5, y: Math.random() -0.5}))
+          }  
+          enemyArr.splice(index, 1);
+          weaponArr.splice(weaponIndex, 1);
+        }
+      })
     })
     objectArray.forEach((object, objIndex) => {
       object.draw();
@@ -481,7 +507,7 @@ function updateCanvas() {
       gameOver();
     }
 }
-
+// control spaceship movement
 document.addEventListener('keydown', (event) => {
   switch (event.keyCode) {
     case 37: // LEFT
@@ -502,20 +528,3 @@ document.addEventListener('keydown', (event) => {
       break;
   }
 });
-/* document.addEventListener('keyup', (event) => {
-  switch (event.keyCode) {
-    case 37:
-      spaceship.x -= 0;
-      break;
-    case 38:
-      spaceship.y -= 0;
-      break;
-    case 39:
-      spaceship.x += 0;
-      break;
-    case 40:
-      spaceship.y += 0;
-      break;
-  }
-}); */
-
