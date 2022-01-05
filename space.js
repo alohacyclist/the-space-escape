@@ -19,7 +19,7 @@ let textAlpha = 1;
 let scoreName = '';
 let newLevel = false;
 let updates = 0;
-let level = 1;
+let level = 9;
 let difficulty = 100;
 let shield = 200;
 let score = 0;
@@ -29,7 +29,7 @@ let explosionArr = [];
 let enemyArr = [];
 const highscoreArr = JSON.parse(localStorage.getItem('highscores')) || [];
 let spaceshipWeaponColor = 'rgb(73, 253, 84)';
-let enemyWeaponColor = 'rgb(255, 20, 247)'
+let enemyWeaponColor = 'rgb(255, 20, 247)';
 
 // canvas size
 canvas.width = 1024;
@@ -55,8 +55,9 @@ asteroid3.src = './img/met3.png';
 const ufoY = new Image();
 ufoY.src = './img/ufoYellow.png';
 // sounds
-const spaceshipLaser = new Audio();
-spaceshipLaser.src = './sounds/spaceshipLaser.mp3'
+const spaceshipLaser = new Audio('./sounds/spaceLaser.wav');
+const enemyLaser = new Audio('./sounds/enemyLaser.wav');
+const hit = new Audio('./sounds/hit.wav');
 
 // display game statistics
 function dispalyStats() {
@@ -171,13 +172,14 @@ class Objects {
   shoot() {
     let angle = Math.atan2(spaceship.y + spaceship.h/2 - (this.y + this.h/2), spaceship.x + spaceship.w/2 - (this.x + this.w/2));
     let speed = {
-      x: Math.cos(angle) * 4,
-      y: Math.sin(angle) * 4
+      x: Math.cos(angle) * 8,
+      y: Math.sin(angle) * 8
     }
     
-    if(updates % 30 === 0) {
+    if(updates % calcRandomNum(50, 100) === 0) {
       const enemyWeapon = new Weapon(this.x + this.w/2, this.y + this.h/2, 3, speed, enemyWeaponColor);
       enemyArr.push(enemyWeapon);
+      enemyLaser.play();
     }
   }
    draw() {
@@ -248,8 +250,8 @@ class Explosion {
   }
 
   move() {
-    this.x = this.x + this.velocity.x;
-    this.y = this.y + this.velocity.y;
+    this.x += this.velocity.x;
+    this.y += this.velocity.y;
     this.exAlpha -= 0.002;
   }
 
@@ -403,6 +405,7 @@ function startGame() {
 
 // shooting on mouseclick
 addEventListener('click', (event) => {
+  spaceshipLaser.play();
   const angle = Math.atan2(event.clientY - (spaceship.y + spaceship.h/2), event.clientX - (spaceship.x + spaceship.w/2));
   const velocity = {
     x: Math.cos(angle) * 5,
@@ -451,10 +454,12 @@ function updateCanvas() {
     enemyArr.forEach((enemy, index) => { 
       enemy.drawEnemyWeapon();
       
+      
       if(hitCircles(spaceship.x + spaceship.w/2, enemy.x, spaceship.y + spaceship.h/2, enemy.y, 18, 18)) {
         for(let i = 0; i <= 10; i++) {
           explosionArr.push(new Explosion(enemy.x, enemy.y, 3, {x: Math.random() -0.5, y: Math.random() -0.5}))
-        }  
+        }
+        hit.play();
         enemyArr.splice(index, 1);
         shield -= 20;
         score -= 50;
@@ -468,6 +473,7 @@ function updateCanvas() {
           for(let i = 0; i <= 10; i++) {
             explosionArr.push(new Explosion(enemyWeapon.x, enemyWeapon.y, 3, {x: Math.random() -0.5, y: Math.random() -0.5}))
           }
+          hit.play();
           score += 20;  
           enemyArr.splice(index, 1);
           weaponArr.splice(weaponIndex, 1);
@@ -482,6 +488,7 @@ function updateCanvas() {
         for(let i = 0; i <= 10; i++) {
           explosionArr.push(new Explosion(object.x + object.w/2, object.y + object.h/2, 3, {x: Math.random() -0.5, y: Math.random() -0.5}))
         }  
+        hit.play();
         objectArray.splice(objIndex, 1);
         shield -= 30;
         score -= 300;
@@ -491,7 +498,8 @@ function updateCanvas() {
         if (hitCircles(weapon.x, object.x, weapon.y, object.y, 10, object.w/2) && level > 2) {
         for(let i = 0; i <= 10; i++) {
           explosionArr.push(new Explosion(weapon.x, weapon.y, 3, {x: Math.random() -0.5, y: Math.random() -0.5}))
-        }       
+        }  
+        hit.play();     
         objectArray.splice(objIndex, 1);
         weaponArr.splice(weaponIndex, 1);
         score += 50;
@@ -499,6 +507,7 @@ function updateCanvas() {
           for(let i = 0; i <= 10; i++) {
             explosionArr.push(new Explosion(weapon.x, weapon.y, 3, {x: Math.random() -0.5, y: Math.random() -0.5}))
           }  
+          hit.play();
           objectArray.splice(objIndex, 1);
           weaponArr.splice(weaponIndex, 1);
           score -= 150;
