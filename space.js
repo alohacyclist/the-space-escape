@@ -175,7 +175,7 @@ class Objects {
       y: Math.sin(angle) * 6
     }
     
-    if(updates % calcRandomNum(50, 100) === 0) {
+    if(updates % calcRandomNum(35, 100) === 0) {
       const enemyWeapon = new Weapon(this.x + this.w/2, this.y + this.h/2, 3, speed, enemyWeaponColor);
       enemyArr.push(enemyWeapon);
       enemyLaser.play();
@@ -314,7 +314,7 @@ function createObjects() {
     // bottom
     objectArray.push(new Objects
       (calcRandomNum(0, canvas.width), canvas.height + 100, calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid3', asteroid3));
-  } else if (updates % difficulty === 0 && level >= 9 && level < 11) {
+  } else if (updates % (difficulty + 50) === 0 && level >= 9 && level < 11) {
     objectArray.push(new Objects
       (calcRandomNum(0, canvas.width), 0 - 100, 65, 65, 1, 'enemy', ufoY));
   }
@@ -325,7 +325,7 @@ function levels() {
   if(updates % 1300 == 0 && level <= 10) {
     level++;
     newLevel = true;
-    difficulty -= 8;
+    difficulty -= 10;
     setTimeout(() => { newLevel = false; textAlpha = 1 }, 1500)
     if (shield < 200) shield += 20;
   }
@@ -338,7 +338,7 @@ function levels() {
     win.style.display = 'flex';
     setTimeout(() => {
       winGame();
-    }, 5000)
+    }, 7000)
   }
 }
 
@@ -420,7 +420,7 @@ function start() {
 }
 
 function startGame() {
-  //reset();
+  reset();
   start();
 }
 
