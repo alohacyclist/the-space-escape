@@ -45,8 +45,9 @@ onload = function() {
     startBtn.onclick = function() {
       startGame();
     }
-    howToPlayBtn.onclick = () => { howToPlay.style.display = 'flex'; }
-    highscoreBtn.onclick = () => { howToPlay.style.display = 'none'; }
+    howToPlayBtn.onclick = function() {
+      howToPlay.style.display = 'flex';
+    }
 }
 
 // some variables
