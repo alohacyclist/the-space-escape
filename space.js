@@ -6,6 +6,7 @@ const startAgainBtn = document.querySelector('.startAgainBtn');
 const playerName = document.querySelector('.playerName');
 const submitBtn = document.querySelector('.submit');
 const highScoreList = document.querySelector('.highScoreList');
+const win = document.querySelector('#winScreen');
 
 onload = function() {
     startBtn.onclick = function() {
@@ -18,8 +19,9 @@ let animationId;
 let textAlpha = 1;
 let scoreName = '';
 let newLevel = false;
+let winLevel = false;
 let updates = 0;
-let level = 9;
+let level = 1;
 let difficulty = 100;
 let shield = 200;
 let score = 0;
@@ -120,12 +122,9 @@ let spaceship = {
     y: canvas.height / 2,
     w: 100,
     h: 100,
-    // angle
-    a: 0,  
-    thrust: 2.5,
     velocity: {
-      x: 0,
-      y: 0
+      x: 2,
+      y: 2
     },
     draw: function () {
         ctx.drawImage(this.img, this.x, this.y, this.w, this.h);
@@ -172,8 +171,8 @@ class Objects {
   shoot() {
     let angle = Math.atan2(spaceship.y + spaceship.h/2 - (this.y + this.h/2), spaceship.x + spaceship.w/2 - (this.x + this.w/2));
     let speed = {
-      x: Math.cos(angle) * 8,
-      y: Math.sin(angle) * 8
+      x: Math.cos(angle) * 6,
+      y: Math.sin(angle) * 6
     }
     
     if(updates % calcRandomNum(50, 100) === 0) {
@@ -207,8 +206,8 @@ class Weapon {
   }
 
   move() {
-    this.x += this.velocity.x;
-    this.y += this.velocity.y;
+    this.x = this.x + this.velocity.x;
+    this.y = this.y + this.velocity.y;
     this.alpha -= 0.008;
   }
 
@@ -246,12 +245,11 @@ class Explosion {
     this.color.addColorStop(0.4, `rgb(255, 140, 0`);
     this.color.addColorStop(0.7, `rgb(207, 0, 15`);
     this.velocity = velocity;
-    
   }
 
   move() {
-    this.x += this.velocity.x;
-    this.y += this.velocity.y;
+    this.x = this.x + this.velocity.x;
+    this.y = this.y + this.velocity.y;
     this.exAlpha -= 0.002;
   }
 
@@ -316,7 +314,7 @@ function createObjects() {
     // bottom
     objectArray.push(new Objects
       (calcRandomNum(0, canvas.width), canvas.height + 100, calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid3', asteroid3));
-  } else if (updates % difficulty === 0 && level > 8) {
+  } else if (updates % difficulty === 0 && level >= 9 && level < 11) {
     objectArray.push(new Objects
       (calcRandomNum(0, canvas.width), 0 - 100, 65, 65, 1, 'enemy', ufoY));
   }
@@ -324,12 +322,23 @@ function createObjects() {
 
 // create new levels
 function levels() {
-  if(updates % 1000 == 0) {
+  if(updates % 1300 == 0 && level <= 10) {
     level++;
     newLevel = true;
-    difficulty -= 10;
-    setTimeout(() => { newLevel = false; textAlpha = 1 }, 1300)
+    difficulty -= 8;
+    setTimeout(() => { newLevel = false; textAlpha = 1 }, 1500)
     if (shield < 200) shield += 20;
+  }
+  if(updates % 1300 == 0 && level == 11) {
+    newLevel = false;
+    score += 1000;
+    objectArray = [];
+    enemyArr = [];
+    winLevel = true;
+    win.style.display = 'flex';
+    setTimeout(() => {
+      winGame();
+    }, 5000)
   }
 }
 
@@ -341,7 +350,19 @@ function gameOver() {
   startAgainBtn.onclick = function() {
     reset();
     start();
-    }
+  }
+}
+
+// win
+function winGame() {
+  cancelAnimationFrame(animationId);
+  win.style.display = 'none';
+  canvas.style.display = 'none';
+  endScreen.style.display = 'flex';
+  startAgainBtn.onclick = function() {
+    reset();
+    start();
+  }
 }
 
 // Highscore
@@ -416,7 +437,7 @@ addEventListener('click', (event) => {
 })
 
 // removes weapons from array if they are out of screen bounds
-function deleteWeapon() {
+function deleteItems() {
   weaponArr.forEach((weapon, index) => {
     if(weapon.alpha < 0.1 || weapon.x > canvas.width || weapon.x < 0 || weapon.y > canvas.height || weapon.y < 0) weaponArr.splice(index, 1);
   })
@@ -426,6 +447,11 @@ function deleteWeapon() {
   explosionArr.forEach((explosion, index) => {
     if(explosion.exAlpha < 0.1 || explosion.x > canvas.width || explosion.x < 0 || explosion.y > canvas.height || explosion.y < 0) explosionArr.splice(index, 1)
   })
+  /* objectArray.forEach((object, index) => {
+    if(object.x > canvas.width + 200 || object.x < 0 - 200 || object.y > canvas.height + 200 || object.y < 0 - 200) {
+      objectArray.splice(index, 1);
+    }
+  }) */
 }
 
 // detects circle-circle collisions
@@ -440,7 +466,7 @@ function updateCanvas() {
     
     levels();
     createObjects();
-    deleteWeapon();
+    deleteItems();
 
     background.draw();
     spaceship.draw();
@@ -453,15 +479,13 @@ function updateCanvas() {
     // enemy weapon - spaceship collisions
     enemyArr.forEach((enemy, index) => { 
       enemy.drawEnemyWeapon();
-      
-      
       if(hitCircles(spaceship.x + spaceship.w/2, enemy.x, spaceship.y + spaceship.h/2, enemy.y, 18, 18)) {
         for(let i = 0; i <= 10; i++) {
           explosionArr.push(new Explosion(enemy.x, enemy.y, 3, {x: Math.random() -0.5, y: Math.random() -0.5}))
         }
         hit.play();
         enemyArr.splice(index, 1);
-        shield -= 20;
+        shield -= 50;
         score -= 50;
       }
     })
@@ -483,6 +507,11 @@ function updateCanvas() {
     // object - spaceship collisions
     objectArray.forEach((object, objIndex) => {
       object.draw();
+      /* if(winLevel == true) {
+        for(let i = 0; i <= 3; i++) {
+          explosionArr.push(new Explosion(object.x + object.w/2, object.y + object.h/2, 3, {x: Math.random() -0.5, y: Math.random() -0.5}))
+        }
+      } */
 
       if(hitCircles(spaceship.x + spaceship.w/2, object.x, spaceship.y + spaceship.h/2, object.y, 65, object.w/2)) {
         for(let i = 0; i <= 10; i++) {
@@ -531,20 +560,16 @@ function updateCanvas() {
 document.addEventListener('keydown', (event) => {
   switch (event.keyCode) {
     case 37: // LEFT
-      spaceship.velocity.x += spaceship.thrust;
-      spaceship.x -= spaceship.velocity.x / 15;
+      spaceship.x = spaceship.x - spaceship.velocity.x;
       break;
     case 38: // UP
-      spaceship.velocity.y += spaceship.thrust;
-      spaceship.y -= spaceship.velocity.y / 15;
+      spaceship.y = spaceship.y - spaceship.velocity.y;
       break;
     case 39: // RIGHT
-      spaceship.velocity.x += spaceship.thrust;
-      spaceship.x += spaceship.velocity.x / 15;
+      spaceship.x = spaceship.x + spaceship.velocity.x;
       break;
-    case 40:
-      spaceship.velocity.y += spaceship.thrust;
-      spaceship.y += spaceship.velocity.y / 15;
+    case 40: // DOWN
+      spaceship.y = spaceship.y + spaceship.velocity.y;
       break;
   }
 });

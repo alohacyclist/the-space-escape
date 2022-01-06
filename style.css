@@ -64,6 +64,18 @@ h2 {
     transform: translate(-50%, -50%);
 }
 
+#winScreen {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    left: 20%;
+    top: 30%;
+    font-size: 60px;
+    text-align: center;
+    color: #fff;
+    padding: 15px;
+}
+
 .highScoreList {
     display: flex;
     flex-direction: column;
