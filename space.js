@@ -2,36 +2,14 @@ const canvas = document.querySelector('#canvas');
 const ctx = canvas.getContext('2d');
 
 const startBtn = document.querySelector('.startBtn');
+const howToPlayBtn = document.querySelector('.howToPlayBtn');
+const highscoreBtn = document.querySelector('.highscoreBtn');
 const startAgainBtn = document.querySelector('.startAgainBtn');
 const playerName = document.querySelector('.playerName');
-const submitBtn = document.querySelector('.submit');
 const highScoreList = document.querySelector('.highScoreList');
+const submitBtn = document.querySelector('.submit');
+const instructions = document.querySelector('#howToPlay');
 const win = document.querySelector('#winScreen');
-
-onload = function() {
-    startBtn.onclick = function() {
-      startGame();
-    }
-}
-
-// some variables
-let animationId;
-let textAlpha = 1;
-let scoreName = '';
-let newLevel = false;
-let winLevel = false;
-let updates = 0;
-let level = 1;
-let difficulty = 100;
-let shield = 200;
-let score = 0;
-let objectArray = [];
-let weaponArr = [];
-let explosionArr = [];
-let enemyArr = [];
-const highscoreArr = JSON.parse(localStorage.getItem('highscores')) || [];
-let spaceshipWeaponColor = 'rgb(73, 253, 84)';
-let enemyWeaponColor = 'rgb(255, 20, 247)';
 
 // canvas size
 canvas.width = 1024;
@@ -60,6 +38,35 @@ ufoY.src = './img/ufoYellow.png';
 const spaceshipLaser = new Audio('./sounds/spaceLaser.wav');
 const enemyLaser = new Audio('./sounds/enemyLaser.wav');
 const hit = new Audio('./sounds/hit.wav');
+const startSong = new Audio('./sounds/impMarSong.mp3');
+
+onload = function() {
+    startSong.play();
+    startBtn.onclick = function() {
+      startGame();
+    }
+    howToPlayBtn.onclick = () => { howToPlay.style.display = 'flex'; }
+    highscoreBtn.onclick = () => { howToPlay.style.display = 'none'; }
+}
+
+// some variables
+let animationId;
+let textAlpha = 1;
+let scoreName = '';
+let newLevel = false;
+let winLevel = false;
+let updates = 0;
+let level = 1;
+let difficulty = 100;
+let shield = 200;
+let score = 0;
+let objectArray = [];
+let weaponArr = [];
+let explosionArr = [];
+let enemyArr = [];
+const highscoreArr = JSON.parse(localStorage.getItem('highscores')) || [];
+let spaceshipWeaponColor = 'rgb(73, 253, 84)';
+let enemyWeaponColor = 'rgb(255, 20, 247)';
 
 // display game statistics
 function dispalyStats() {
@@ -413,6 +420,7 @@ function reset() {
 
 // start new game
 function start() {
+  howToPlay.style.display = 'none';
   endScreen.style.display = 'none';
   startScreen.style.display = 'none';
   canvas.style.display = 'block';
