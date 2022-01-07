@@ -41,11 +41,11 @@ const hit = new Audio('./sounds/hit.wav');
 const startSong = new Audio('./sounds/impMarSong.mp3');
 
 onload = function() {
-    setTimeout(() => { console.log('SOUND'); startSong.play(); }, 1000);
     startBtn.onclick = function() {
       startGame();
     }
     howToPlayBtn.onclick = function() {
+      startSong.play();
       howToPlay.style.display = 'flex';
     }
 }
