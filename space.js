@@ -40,7 +40,8 @@ const spaceshipLaser = new Audio('./sounds/spaceLaser.wav');
 const enemyLaser = new Audio('./sounds/enemyLaser.wav');
 const hit = new Audio('./sounds/hit.wav');
 const startSong = new Audio('./sounds/impMarSong.mp3');
-
+const gameMusic1 = new Audio('./sounds/colossus1.mp3');
+const gameMusic2 = new Audio('./sounds/colossus2.mp3');
 
 
 onload = function() {
@@ -49,12 +50,9 @@ onload = function() {
       startGame();
     }
     howToPlayBtn.onclick = function() {
-      
       howToPlay.style.display = 'flex';
     }
 }
-
-
 
 // some variables
 let animationId;
@@ -63,7 +61,7 @@ let scoreName = '';
 let newLevel = false;
 let winLevel = false;
 let updates = 0;
-let level = 1;
+let level = 5;
 let difficulty = 100;
 let shield = 200;
 let score = 0;
@@ -299,6 +297,8 @@ function createObjects() {
     objectArray.push(new Objects
       (calcRandomNum(0, canvas.width), 0 - 100, calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid', asteroid));
   } else if (updates % difficulty === 0 && level == 6) {
+    gameMusic1.pause();
+    gameMusic2.play();
     // left
     objectArray.push(new Objects
       (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid2', asteroid2));
@@ -432,6 +432,7 @@ function start() {
   startScreen.style.display = 'none';
   canvas.style.display = 'block';
   updateCanvas();
+  gameMusic1.play();
 }
 
 function startGame() {
