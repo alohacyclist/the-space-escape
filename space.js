@@ -57,11 +57,13 @@ const gameMusic2 = new Audio('./sounds/colossus2.mp3');
 startBtn.onclick = () => { startGame(); }
 howToPlayBtn.onclick = () => { if(howToPlay.style.display != 'flex') {
   howToPlay.style.display = 'flex';
+  pickShip.style.display = 'none';
 } else {
   howToPlay.style.display = 'none';
 }}
 pickShipBtn.onclick = () => { if(pickShip.style.display != 'flex') {
   pickShip.style.display = 'flex';
+  howToPlay.style.display = 'none';
 } else {
   pickShip.style.display = 'none';
 }}
