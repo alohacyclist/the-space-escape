@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d');
 
 const startBtn = document.querySelector('.startBtn');
 const howToPlayBtn = document.querySelector('.howToPlayBtn');
-const highscoreBtn = document.querySelector('.highscoreBtn');
+const pickShipBtn = document.querySelector('.pickShipBtn');
 const startAgainBtn = document.querySelector('.startAgainBtn');
 const playerName = document.querySelector('.playerName');
 const highScoreList = document.querySelector('.highScoreList');
@@ -17,10 +17,20 @@ canvas.width = 1024;
 canvas.height = 1024;
 // background
 const backgroundImg = new Image();
-backgroundImg.src = './img/bgL3.png'
-// spaceship
-const spaceshipImg = new Image();
-spaceshipImg.src = './img/spaceship.png';
+backgroundImg.src = './img/bgL3.png';
+// spaceship images
+const spaceship1 = new Image();
+spaceship1.src = './img/Battleplane.png';
+const spaceship2 = new Image();
+spaceship2.src = './img/MK1K.png';
+const spaceship3 = new Image();
+spaceship3.src = './img/skyBlanc.png';
+
+// spaceship html elements
+const ship1 = document.querySelector('#ship1');
+const ship2 = document.querySelector('#ship2');
+const ship3 = document.querySelector('#ship3');
+
 // objects
 const airplaneL = new Image();
 airplaneL.src = './img/airplaneL.png';
@@ -43,16 +53,18 @@ const hit = new Audio('./sounds/hit.wav');
 const gameMusic1 = new Audio('./sounds/colossus1.mp3');
 const gameMusic2 = new Audio('./sounds/colossus2.mp3');
 
-
-onload = function() {
-    /* startPage.addEventListener('mouseover', () => { startSong.play(); }) */
-    startBtn.onclick = function() {
-      startGame();
-    }
-    howToPlayBtn.onclick = function() {
-      howToPlay.style.display = 'flex';
-    }
-}
+// click events for buttons on start screen
+startBtn.onclick = () => { startGame(); }
+howToPlayBtn.onclick = () => { if(howToPlay.style.display != 'flex') {
+  howToPlay.style.display = 'flex';
+} else {
+  howToPlay.style.display = 'none';
+}}
+pickShipBtn.onclick = () => { if(pickShip.style.display != 'flex') {
+  pickShip.style.display = 'flex';
+} else {
+  pickShip.style.display = 'none';
+}}
 
 // some variables
 let animationId;
@@ -129,19 +141,51 @@ const background = {
 
 // the spaceship object => the player
 let spaceship = {
-    img: spaceshipImg,
+    img: null,
     x: canvas.width / 2,
     y: canvas.height / 2,
-    w: 100,
-    h: 100,
+    w: 140,
+    h: 140,
     velocity: {
-      x: 2,
-      y: 2
+      x: 2.5,
+      y: 2.5
     },
     draw: function () {
         ctx.drawImage(this.img, this.x, this.y, this.w, this.h);
     }
 }
+
+// pick your spaceship
+ship1.addEventListener('click', function() {
+  spaceship.img = spaceship1;
+  if(ship1.style.transform != 'scale(1.1)') {
+    ship1.style.transform = 'scale(1.1)';
+    ship2.style.transform = 'scale(1)';
+    ship3.style.transform = 'scale(1)';
+  } else {
+    ship1.style.transform = 'scale(1)';
+  }
+})
+ship2.addEventListener('click', function() {
+  spaceship.img = spaceship2;
+  if(ship2.style.transform != 'scale(1.1)') {
+    ship2.style.transform = 'scale(1.1)';
+    ship1.style.transform = 'scale(1)';
+    ship3.style.transform = 'scale(1)';
+  } else {
+    ship2.style.transform = 'scale(1)';
+  }
+})
+ship3.addEventListener('click', function() {
+  spaceship.img = spaceship3;
+  if(ship3.style.transform != 'scale(1.1)') {
+    ship3.style.transform = 'scale(1.1)';
+    ship1.style.transform = 'scale(1)';
+    ship2.style.transform = 'scale(1)';
+  } else {
+    ship3.style.transform = 'scale(1)';
+  }
+})
 
 // Obstacles
 class Objects {
@@ -193,17 +237,17 @@ class Objects {
       enemyLaser.play();
     }
   }
-   draw() {
-      this.move();     
-      if(this.type === 'asteroid' || this.type === 'asteroid2' || this.type === 'asteroid3' || this.type === 'enemy') {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.a * Math.PI/360);
-        ctx.drawImage(this.img, 0 - this.w/2, 0 - this.h/2, this.w, this.h);
-        ctx.restore();
-      } else {
-        ctx.drawImage(this.img, this.x, this.y, this.w, this.h);
-      }
+  draw() {
+    this.move();     
+    if(this.type === 'asteroid' || this.type === 'asteroid2' || this.type === 'asteroid3' || this.type === 'enemy') {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.a * Math.PI/360);
+      ctx.drawImage(this.img, 0 - this.w/2, 0 - this.h/2, this.w, this.h);
+      ctx.restore();
+    } else {
+      ctx.drawImage(this.img, this.x, this.y, this.w, this.h);
+    }
   }
 }
 
@@ -340,7 +384,7 @@ function levels() {
     level++;
     newLevel = true;
     difficulty -= 10;
-    setTimeout(() => { newLevel = false; textAlpha = 1 }, 1500)
+    setTimeout(() => { newLevel = false; textAlpha = 1 }, 1500);
     if (shield < 200) shield += 20;
   }
   if(updates % 1300 == 0 && level == 11) {
@@ -350,9 +394,7 @@ function levels() {
     enemyArr = [];
     winLevel = true;
     win.style.display = 'flex';
-    setTimeout(() => {
-      winGame();
-    }, 7000)
+    setTimeout(() => { winGame() }, 7000);
   }
 }
 
@@ -361,10 +403,7 @@ function gameOver() {
   cancelAnimationFrame(animationId);
   canvas.style.display = 'none';
   endScreen.style.display = 'flex';
-  startAgainBtn.onclick = function() {
-    reset();
-    start();
-  }
+  startAgainBtn.onclick = () => { reset(); start(); }
 }
 
 // win
@@ -373,10 +412,7 @@ function winGame() {
   win.style.display = 'none';
   canvas.style.display = 'none';
   endScreen.style.display = 'flex';
-  startAgainBtn.onclick = function() {
-    reset();
-    start();
-  }
+  startAgainBtn.onclick = () => { reset(); start(); }
 }
 
 // Highscore
@@ -425,8 +461,9 @@ function reset() {
   submitBtn.style.display = 'inline';
 }
 
-// start new game
+// start a new game
 function start() {
+  pickShip.style.display = 'none';
   howToPlay.style.display = 'none';
   endScreen.style.display = 'none';
   startScreen.style.display = 'none';
@@ -434,11 +471,8 @@ function start() {
   updateCanvas();
   gameMusic1.play();
 }
-
-function startGame() {
-  reset();
-  start();
-}
+// start the game
+function startGame() { reset(); start(); }
 
 // shooting on mouseclick
 addEventListener('click', (event) => {
@@ -529,7 +563,7 @@ function updateCanvas() {
         }
       } */
 
-      if(hitCircles(spaceship.x + spaceship.w/2, object.x, spaceship.y + spaceship.h/2, object.y, 65, object.w/2)) {
+      if(hitCircles(spaceship.x + spaceship.w/2, object.x, spaceship.y + spaceship.h/2, object.y, 58, object.w/2)) {
         for(let i = 0; i <= 10; i++) {
           explosionArr.push(new Explosion(object.x + object.w/2, object.y + object.h/2, 3, {x: Math.random() -0.5, y: Math.random() -0.5}))
         }  

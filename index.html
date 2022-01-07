@@ -8,11 +8,13 @@
     <title>The Space Escape</title>
 </head>
 <body>
+
   <canvas id='canvas'></canvas>
   
   <div id='startScreen'>
     <h1>The Space Escape</h1>
     <div class='btns'>
+      <button class="pickShipBtn">Spaceships</button>
       <button class="startBtn">Start Game</button>
       <button class="howToPlayBtn">How to play</button>
     </div>
@@ -34,6 +36,15 @@
 
   <div id='winScreen'>
       <h2>You won!</h2>
+  </div>
+
+  <div id='pickShip'>
+    <h3>Pick your spaceship</h3>
+    <div class='shipBox'>
+      <div id='ship1' class='ships'>Space Tank<img src='./img/Battleplane.png' width='200'></div>
+      <div id='ship2' class='ships'>Millenium Hawk<img src='./img/MK1K.png' width='200'></div>
+      <div id='ship3' class='ships'>X-Wing<img src='./img/skyBlanc.png' width='200'></div>
+    </div>
   </div>
 
   <div id='howToPlay'>
