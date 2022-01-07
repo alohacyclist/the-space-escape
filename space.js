@@ -42,8 +42,7 @@ const hit = new Audio('./sounds/hit.wav');
 /* const startSong = new Audio('./sounds/impMarSong.mp3'); */
 
 onload = function() {
-    audio.muted = false;
-    audio.play();
+
     startBtn.onclick = function() {
       startGame();
     }
