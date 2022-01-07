@@ -41,6 +41,8 @@ const enemyLaser = new Audio('./sounds/enemyLaser.wav');
 const hit = new Audio('./sounds/hit.wav');
 /* const startSong = new Audio('./sounds/impMarSong.mp3'); */
 
+audio.onloadstart = () => { audio.play(); };
+
 onload = function() {
 
     startBtn.onclick = function() {
