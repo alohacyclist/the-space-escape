@@ -7,6 +7,7 @@ body {
 
 #canvas {
     display: none;
+    cursor: crosshair;
 }
 
 h1 {
@@ -32,6 +33,10 @@ h2 {
 #startScreen {
     display: flex;
     flex-direction: column;
+}
+
+button {
+    cursor: pointer;
 }
 
 .btns {
