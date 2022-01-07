@@ -10,6 +10,7 @@ const highScoreList = document.querySelector('.highScoreList');
 const submitBtn = document.querySelector('.submit');
 const instructions = document.querySelector('#howToPlay');
 const win = document.querySelector('#winScreen');
+const startPage = document.querySelector('#startScreen');
 
 // canvas size
 canvas.width = 1024;
@@ -40,10 +41,10 @@ const enemyLaser = new Audio('./sounds/enemyLaser.wav');
 const hit = new Audio('./sounds/hit.wav');
 const startSong = new Audio('./sounds/impMarSong.mp3');
 
-startSong.onloadstart = () => { startSong.play(); };
+
 
 onload = function() {
-
+    startPage.addEventListener('mouseover', () => { startSong.play(); })
     startBtn.onclick = function() {
       startGame();
     }
@@ -52,6 +53,8 @@ onload = function() {
       howToPlay.style.display = 'flex';
     }
 }
+
+
 
 // some variables
 let animationId;
