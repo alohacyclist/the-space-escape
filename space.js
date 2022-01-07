@@ -39,13 +39,13 @@ ufoY.src = './img/ufoYellow.png';
 const spaceshipLaser = new Audio('./sounds/spaceLaser.wav');
 const enemyLaser = new Audio('./sounds/enemyLaser.wav');
 const hit = new Audio('./sounds/hit.wav');
-const startSong = new Audio('./sounds/impMarSong.mp3');
+/* const startSong = new Audio('./sounds/impMarSong.mp3'); */
 const gameMusic1 = new Audio('./sounds/colossus1.mp3');
 const gameMusic2 = new Audio('./sounds/colossus2.mp3');
 
 
 onload = function() {
-    startPage.addEventListener('mouseover', () => { startSong.play(); })
+    /* startPage.addEventListener('mouseover', () => { startSong.play(); }) */
     startBtn.onclick = function() {
       startGame();
     }
