@@ -141,7 +141,7 @@ const background = {
 
 // the spaceship object => the player
 let spaceship = {
-    img: null,
+    img: spaceship1,
     x: canvas.width / 2,
     y: canvas.height / 2,
     w: 140,
