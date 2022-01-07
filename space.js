@@ -10,6 +10,7 @@ const highScoreList = document.querySelector('.highScoreList');
 const submitBtn = document.querySelector('.submit');
 const instructions = document.querySelector('#howToPlay');
 const win = document.querySelector('#winScreen');
+const audio = document.querySelector('.audio');
 
 // canvas size
 canvas.width = 1024;
@@ -38,11 +39,11 @@ ufoY.src = './img/ufoYellow.png';
 const spaceshipLaser = new Audio('./sounds/spaceLaser.wav');
 const enemyLaser = new Audio('./sounds/enemyLaser.wav');
 const hit = new Audio('./sounds/hit.wav');
-const startSong = new Audio('./sounds/impMarSong.mp3');
+/* const startSong = new Audio('./sounds/impMarSong.mp3'); */
 
 onload = function() {
-  startSong.muted = true;
-  setTimeout(() => { startSong.play() }, 1000);
+    audio.muted = false;
+    audio.play();
     startBtn.onclick = function() {
       startGame();
     }
