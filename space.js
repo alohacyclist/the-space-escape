@@ -58,6 +58,7 @@ startBtn.onclick = () => { startGame(); }
 howToPlayBtn.onclick = () => { if(howToPlay.style.display != 'flex') {
   howToPlay.style.display = 'flex';
   pickShip.style.display = 'none';
+
 } else {
   howToPlay.style.display = 'none';
 }}
@@ -66,6 +67,7 @@ pickShipBtn.onclick = () => { if(pickShip.style.display != 'flex') {
   howToPlay.style.display = 'none';
 } else {
   pickShip.style.display = 'none';
+  shipBox.style.display = 'none';
 }}
 
 // some variables
@@ -445,6 +447,7 @@ submitBtn.onclick = () => {
   enterHighscore();
   createTop3(highscoreArr);
   submitBtn.style.display = 'none';
+  playerName.style.display = 'none';
 }
 
 // new game reset
