@@ -33,9 +33,9 @@ const ship3 = document.querySelector('#ship3');
 
 // objects
 const airplaneL = new Image();
-airplaneL.src = './img/airplaneL.png';
+airplaneL.src = './img/satelliteL.png';
 const airplaneR = new Image();
-airplaneR.src = './img/airplaneR.png';
+airplaneR.src = './img/satelliteR.png';
 const asteroid = new Image();
 asteroid.src = './img/met1.png';
 const asteroid2 = new Image();
@@ -77,7 +77,7 @@ let textAlpha = 1;
 let scoreName = '';
 let newLevel = false;
 let winLevel = false;
-let goR = true;
+let endbossHits = 0;
 let updates = 0;
 let level = 10;
 let difficulty = 100;
@@ -162,22 +162,6 @@ let spaceship = {
     }
 }
 
-// endboss
-/* let endboss = {
-  img: endboss,
-  x: canvas.width / 2,
-  y: 0,
-  w: 140,
-  h: 140,
-  velocity: {
-    x: 2,
-    y: 0
-  },
-  draw: function () {
-      ctx.drawImage(this.img, this.x, this.y, this.w, this.h);
-  }
-} */
-
 // pick your spaceship
 ship1.addEventListener('click', function() {
   spaceship.img = spaceship1;
@@ -235,6 +219,7 @@ class Objects {
       score += 100;
     }
   }
+
   move() {
     this.a++;
     if (this.type === 'airplane') {
@@ -359,12 +344,12 @@ class Explosion {
 function createObjects() {
   if (updates % difficulty === 0 && level == 1) {   
     objectArray.push(new Objects
-      (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), 1, 'airplane', airplaneL));
+      (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(140, 100), calcRandomNum(60, 90), 1, 'airplane', airplaneL));
   } else if (updates % difficulty === 0 && level == 2) {
     Math.random() < 0.5 ? objectArray.push(new Objects
-      (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), 1, 'airplane', airplaneL)) :
+      (0 - 180, calcRandomNum(0, canvas.height), calcRandomNum(140, 100), calcRandomNum(60, 90), 1, 'airplane', airplaneL)) :
       objectArray.push(new Objects
-        (canvas.width + 100, calcRandomNum(0, canvas.height), calcRandomNum(180, 100), calcRandomNum(30, 50), -1, 'airplane', airplaneR)); 
+        (canvas.width + 100, calcRandomNum(0, canvas.height), calcRandomNum(140, 100), calcRandomNum(60, 90), -1, 'airplane', airplaneR)); 
   } else if (updates % difficulty === 0 && level == 3 ) {
     objectArray.push(new Objects
       (calcRandomNum(0, canvas.width), 0 - 100, calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid', asteroid));
@@ -426,12 +411,8 @@ function levels() {
   }
   if(updates % 1300 == 0 && level == 11) {
     newLevel = false;
-    score += 1000;
     objectArray = [];
     enemyArr = [];
-    winLevel = true;
-    win.style.display = 'flex';
-    setTimeout(() => { winGame() }, 7000);
   }
 }
 
@@ -440,6 +421,7 @@ function gameOver() {
   cancelAnimationFrame(animationId);
   canvas.style.display = 'none';
   endScreen.style.display = 'flex';
+  playerName.style.display = 'inline';
   startAgainBtn.onclick = () => { reset(); start(); }
 }
 
@@ -510,7 +492,7 @@ function start() {
   gameMusic1.play();
 }
 // start the game
-function startGame() { /* reset(); */ start(); }
+function startGame() { reset(); start(); }
 
 // shooting on mouseclick
 addEventListener('click', (event) => {
@@ -535,11 +517,6 @@ function deleteItems() {
   explosionArr.forEach((explosion, index) => {
     if(explosion.exAlpha < 0.1 || explosion.x > canvas.width || explosion.x < 0 || explosion.y > canvas.height || explosion.y < 0) explosionArr.splice(index, 1)
   })
-  /* objectArray.forEach((object, index) => {
-    if(object.x > canvas.width + 200 || object.x < 0 - 200 || object.y > canvas.height + 200 || object.y < 0 - 200) {
-      objectArray.splice(index, 1);
-    }
-  }) */
 }
 
 // detects circle-circle collisions
@@ -571,12 +548,13 @@ function updateCanvas() {
         for(let i = 0; i <= 10; i++) {
           explosionArr.push(new Explosion(enemy.x, enemy.y, 3, {x: Math.random() -0.5, y: Math.random() -0.5}))
         }
-        hit.play();
-        enemyArr.splice(index, 1);
-        shield -= 50;
-        score -= 50;
+          hit.play();
+          enemyArr.splice(index, 1);
+          shield -= 50;
+          score -= 50;
       }
     })
+
     // weapon - weapon collisions
     weaponArr.forEach((weapon, weaponIndex) => {
       weapon.draw();
@@ -593,18 +571,50 @@ function updateCanvas() {
       })
     })
 
-    endbossArr.forEach(boss => {
+    endbossArr.forEach((boss) => {
       boss.draw();
       boss.shoot();
+      weaponArr.forEach((weapon, weaponIndex) => {        
+        if (hitCircles(weapon.x, boss.x, weapon.y, boss.y, 15, boss.w/2)) {
+          console.log('hitEnemy');
+          endbossHits++;
+          for(let i = 0; i <= 10; i++) {
+            explosionArr.push(new Explosion(boss.x + boss.w/2, boss.y + boss.h/2, 3, {x: Math.random() -0.5, y: Math.random() -0.5}));
+          }
+        weaponArr.splice(weaponIndex, 1);
+        }
+        enemyArr.forEach((enemyWeapon, index) => {
+          if(hitCircles(enemyWeapon.x, weapon.x, enemyWeapon.y, weapon.y, 18, 18)) {
+            for(let i = 0; i <= 10; i++) {
+              explosionArr.push(new Explosion(enemyWeapon.x, enemyWeapon.y, 3, {x: Math.random() -0.5, y: Math.random() -0.5}))
+            }
+            hit.play();
+            enemyArr.splice(index, 1);
+            weaponArr.splice(weaponIndex, 1);
+          }      
+      })
+      explosionArr.forEach(explosion => {
+        explosion.draw();
+      })
     })
+      
+      if (endbossHits >= 10) {
+        for(let i = 0; i <= 10; i++) {
+          explosionArr.push(new Explosion(boss.x + boss.w/2, boss.y + boss.h/2, 3, {x: Math.random() -0.5, y: Math.random() -0.5}));
+        }
+        objectArray = [];
+        win.style.display = 'flex';
+        setTimeout(() => { objectArray = []; }, 2500);
+        setTimeout(() => { winGame(), score += 3000; }, 7000);
+      }
+      explosionArr.forEach(explosion => {
+        explosion.draw();
+      })
+    })
+
     // object - spaceship collisions
     objectArray.forEach((object, objIndex) => {
       object.draw();
-      /* if(winLevel == true) {
-        for(let i = 0; i <= 3; i++) {
-          explosionArr.push(new Explosion(object.x + object.w/2, object.y + object.h/2, 3, {x: Math.random() -0.5, y: Math.random() -0.5}))
-        }
-      } */
 
       if(hitCircles(spaceship.x + spaceship.w/2, object.x, spaceship.y + spaceship.h/2, object.y, 58, object.w/2)) {
         for(let i = 0; i <= 10; i++) {
@@ -612,6 +622,7 @@ function updateCanvas() {
         }  
         hit.play();
         objectArray.splice(objIndex, 1);
+        console.log('hitSpaceship')
         shield -= 30;
         score -= 300;
       }
@@ -620,7 +631,8 @@ function updateCanvas() {
         if (hitCircles(weapon.x, object.x, weapon.y, object.y, 10, object.w/2) && level > 2) {
         for(let i = 0; i <= 10; i++) {
           explosionArr.push(new Explosion(weapon.x, weapon.y, 3, {x: Math.random() -0.5, y: Math.random() -0.5}))
-        }  
+        }
+        console.log('hitEnemy')
         hit.play();     
         objectArray.splice(objIndex, 1);
         weaponArr.splice(weaponIndex, 1);
@@ -635,10 +647,15 @@ function updateCanvas() {
           score -= 150;
           }
       })
+
+      
+
       explosionArr.forEach(explosion => {
         explosion.draw();
       })
+
       object.score();
+
     })
     
     dispalyStats();
