@@ -45,6 +45,8 @@ asteroid3.src = './img/met3.png';
 // enemies
 const ufoY = new Image();
 ufoY.src = './img/ufoYellow.png';
+const endboss = new Image();
+endboss.src = './img/endboss.png';
 // sounds
 const spaceshipLaser = new Audio('./sounds/spaceLaser.wav');
 const enemyLaser = new Audio('./sounds/enemyLaser.wav');
@@ -58,7 +60,6 @@ startBtn.onclick = () => { startGame(); }
 howToPlayBtn.onclick = () => { if(howToPlay.style.display != 'flex') {
   howToPlay.style.display = 'flex';
   pickShip.style.display = 'none';
-
 } else {
   howToPlay.style.display = 'none';
 }}
@@ -76,8 +77,9 @@ let textAlpha = 1;
 let scoreName = '';
 let newLevel = false;
 let winLevel = false;
+let goR = true;
 let updates = 0;
-let level = 5;
+let level = 10;
 let difficulty = 100;
 let shield = 200;
 let score = 0;
@@ -85,6 +87,7 @@ let objectArray = [];
 let weaponArr = [];
 let explosionArr = [];
 let enemyArr = [];
+let endbossArr = [];
 const highscoreArr = JSON.parse(localStorage.getItem('highscores')) || [];
 let spaceshipWeaponColor = 'rgb(73, 253, 84)';
 let enemyWeaponColor = 'rgb(255, 20, 247)';
@@ -159,6 +162,22 @@ let spaceship = {
     }
 }
 
+// endboss
+/* let endboss = {
+  img: endboss,
+  x: canvas.width / 2,
+  y: 0,
+  w: 140,
+  h: 140,
+  velocity: {
+    x: 2,
+    y: 0
+  },
+  draw: function () {
+      ctx.drawImage(this.img, this.x, this.y, this.w, this.h);
+  }
+} */
+
 // pick your spaceship
 ship1.addEventListener('click', function() {
   spaceship.img = spaceship1;
@@ -202,7 +221,7 @@ class Objects {
       this.a = Math.random() * 360;
       this.velocity = velocity;
       this.type = type;
-      this.pointsCounted = false;
+      this.pointsCounted = false; 
   }
   score() {
     if(level <= 3 && (this.x + this.w > canvas.width)  && this.pointsCounted == false) {
@@ -226,8 +245,14 @@ class Objects {
       this.x += this.velocity;
     } else if (this.type === 'asteroid3') {
       this.y -= this.velocity;
+    } else if (this.type === 'endboss') {
+      this.y += this.velocity;
+      if(this.y = 150) this.x += this.velocity, this.y = 150;
+      if(this.x + this.w > canvas.width) this.velocity = calcRandomNum(-1, -5), this.y = 150;
+      if(this.x + this.w < 0) this.velocity = calcRandomNum(1, 5), this.y = 150;
     }
   }
+
   shoot() {
     let angle = Math.atan2(spaceship.y + spaceship.h/2 - (this.y + this.h/2), spaceship.x + spaceship.w/2 - (this.x + this.w/2));
     let speed = {
@@ -235,12 +260,17 @@ class Objects {
       y: Math.sin(angle) * 6
     }
     
-    if(updates % calcRandomNum(35, 100) === 0) {
+    if(updates % calcRandomNum(35, 100) === 0 && level < 9) {
+      const enemyWeapon = new Weapon(this.x + this.w/2, this.y + this.h/2, 3, speed, enemyWeaponColor);
+      enemyArr.push(enemyWeapon);
+      enemyLaser.play();
+    } else if (updates % calcRandomNum(25, 60) === 0 && level <= 10) {
       const enemyWeapon = new Weapon(this.x + this.w/2, this.y + this.h/2, 3, speed, enemyWeaponColor);
       enemyArr.push(enemyWeapon);
       enemyLaser.play();
     }
   }
+
   draw() {
     this.move();     
     if(this.type === 'asteroid' || this.type === 'asteroid2' || this.type === 'asteroid3' || this.type === 'enemy') {
@@ -376,9 +406,12 @@ function createObjects() {
     // bottom
     objectArray.push(new Objects
       (calcRandomNum(0, canvas.width), canvas.height + 100, calcRandomNum(100, 50), calcRandomNum(100, 50), 1, 'asteroid3', asteroid3));
-  } else if (updates % (difficulty + 50) === 0 && level >= 9 && level < 11) {
+  } else if (updates % (difficulty + 50) === 0 && level == 9) {
     objectArray.push(new Objects
       (calcRandomNum(0, canvas.width), 0 - 100, 65, 65, 1, 'enemy', ufoY));
+  } else if (updates % difficulty === 0 && level == 10 && endbossArr.length < 1) {
+      endbossArr.push(new Objects
+        (calcRandomNum(0, canvas.width), 0 - 100, 150, 65, 1, 'endboss', endboss));
   }
 }
 
@@ -477,7 +510,7 @@ function start() {
   gameMusic1.play();
 }
 // start the game
-function startGame() { reset(); start(); }
+function startGame() { /* reset(); */ start(); }
 
 // shooting on mouseclick
 addEventListener('click', (event) => {
@@ -558,6 +591,11 @@ function updateCanvas() {
           weaponArr.splice(weaponIndex, 1);
         }
       })
+    })
+
+    endbossArr.forEach(boss => {
+      boss.draw();
+      boss.shoot();
     })
     // object - spaceship collisions
     objectArray.forEach((object, objIndex) => {
