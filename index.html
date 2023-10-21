@@ -1,72 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./style.css" />
-    <title>The Space Escape</title>
-</head>
-<body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="./style.css" />
+		<title>The Space Escape</title>
+	</head>
+	<body>
+		<div class="wrapper">
+			<div class="stats">
+				<h3>
+					Score:
+					<span class="score"></span>
+				</h3>
+				<h3>
+					Shooting efficieny:
+					<span class="efficiency"></span>
+				</h3>
+			</div>
 
-  <canvas id='canvas'></canvas>
-  
+			<canvas id="canvas"></canvas>
 
+			<div class="spacer"></div>
+		</div>
 
-  <div id='startScreen'>
+		<div id="startScreen">
+			<div id="pickShip">
+				<h3>Pick your spaceship</h3>
+				<div class="shipBox">
+					<div id="ship1" class="ships">
+						Space Tank<img src="./img/Battleplane.png" width="200" />
+					</div>
+					<div id="ship2" class="ships">
+						Millenium Hawk<img src="./img/MK1K.png" width="200" />
+					</div>
+					<div id="ship3" class="ships">
+						X-Wing<img src="./img/skyBlanc.png" width="200" />
+					</div>
+				</div>
+			</div>
 
-    <div id='pickShip'>
-      <h3>Pick your spaceship</h3>
-      <div class='shipBox'>
-        
-        <div id='ship1' class='ships'>Space Tank<img src='./img/Battleplane.png' width='200'></div>
-        <div id='ship2' class='ships'>Millenium Hawk<img src='./img/MK1K.png' width='200'></div>
-        <div id='ship3' class='ships'>X-Wing<img src='./img/skyBlanc.png' width='200'></div>
-      </div>
-    </div>
-  
-    <div id='howToPlay'>
-      <ul class='instructions'>
-        <li>Navigate your spaceship with the arrow keys on your keyboard.</li>
-        <li>Stay clear of planes, asteroids and shooting UFO's.</li>
-        <li>Shooting at aircrafts earns negative points.</li>
-        <li>Use your mouse to point and shoot.</li>
-        <li>Survive Level 10 and see if you beat the highscore.</li>
-      </ul>
-    </div>
-    
-    <h1>The Space Escape</h1>
-    <div class='btns'>
-      <button class="pickShipBtn">Spaceships</button>
-      <button class="startBtn">Start Game</button>
-      <button class="howToPlayBtn">How to play</button>
-    </div>
-  </div>
-  
-  <div id='endScreen'>
-    <div id='highScore'>
-      <h2>Highscore</h2>
-      <input class='playerName' type='text' placeholder='Enter your name'> 
-      <button class='submit'>Enter</button>
-      <ul class='highScoreList'>
-      </ul>
-    </div>
-    <div class='gameover'>
-      <h1>Game Over</h1>
-      <button class="startAgainBtn">Start Game</button>
-    </div>
-    
-  </div>
+			<div id="howToPlay">
+				<ul class="instructions">
+					<li>Navigate your spaceship with the arrow keys on your keyboard.</li>
+					<li>Stay clear of planes, asteroids and shooting UFO's.</li>
+					<li>Shooting at aircrafts earns negative points.</li>
+					<li>Use your mouse to point and shoot.</li>
+					<li>Survive Level 10 and see if you beat the highscore.</li>
+				</ul>
+			</div>
 
-  <div id='winScreen'>
-      <h2>You won!</h2>
-  </div>
+			<h1>The Space Escape</h1>
+			<div class="btns">
+				<button class="pickShipBtn">Spaceships</button>
+				<button class="startBtn">Start Game</button>
+				<button class="howToPlayBtn">How to play</button>
+			</div>
+		</div>
 
-  
+		<div id="endScreen">
+			<div id="highScore">
+				<h2>Highscore</h2>
+				<input class="playerName" type="text" placeholder="Enter your name" />
+				<button class="submit">Enter</button>
+				<ul class="highScoreList"></ul>
+			</div>
+			<div class="gameover">
+				<h1>Game Over</h1>
+				<button class="startAgainBtn">Start Game</button>
+			</div>
+		</div>
 
+		<div id="winScreen">
+			<h2>You won!</h2>
+		</div>
 
-
-    <script type="text/javascript" src="./space.js"></script>
-    
-</body>
+		<script type="text/javascript" src="./space.js"></script>
+	</body>
 </html>
