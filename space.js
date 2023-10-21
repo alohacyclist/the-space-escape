@@ -1,7 +1,6 @@
 const canvas = document.querySelector("#canvas");
-const wrapper = document.querySelector(".wrapper");
 const ctx = canvas.getContext("2d");
-
+const body = document.querySelector("body");
 const startBtn = document.querySelector(".startBtn");
 const howToPlayBtn = document.querySelector(".howToPlayBtn");
 const pickShipBtn = document.querySelector(".pickShipBtn");
@@ -13,21 +12,19 @@ const instructions = document.querySelector("#howToPlay");
 const win = document.querySelector("#winScreen");
 const startPage = document.querySelector("#startScreen");
 
-const scoreDisplay = document.querySelector(".score");
-const efficiencyDisplay = document.querySelector(".efficiency");
-
-canvas.width = window.innerHeight;
-canvas.height = window.innerWidth;
-onresize = (event) => {
-	// canvas size
-	// console.log("resize");
-	canvas.width = window.innerHeight;
-	canvas.height = window.innerWidth;
-};
+// canvas size
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
 // background
 const backgroundImg = new Image();
 backgroundImg.src = "./img/bgL3.png";
+
+function scaleToFit(img) {
+	// get the scale
+	var scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+	return scale;
+}
 // spaceship images
 const spaceship1 = new Image();
 spaceship1.src = "./img/Battleplane.png";
@@ -91,7 +88,6 @@ pickShipBtn.onclick = () => {
 let animationId;
 let textAlpha = 1;
 let scoreName = "";
-let effValue = "";
 let newLevel = false;
 let winLevel = false;
 let endbossHits = 0;
@@ -100,9 +96,6 @@ let level = 10;
 let difficulty = 100;
 let shield = 200;
 let score = 0;
-let targetHits = 0;
-let shotsFired = 0;
-let hitShotQ = 0;
 let objectArray = [];
 let weaponArr = [];
 let explosionArr = [];
@@ -113,7 +106,7 @@ let spaceshipWeaponColor = "rgb(73, 253, 84)";
 let enemyWeaponColor = "rgb(255, 20, 247)";
 
 // display game statistics
-function displayStats() {
+function dispalyStats() {
 	let gradient = ctx.createLinearGradient(30, 30, 200, 0);
 	gradient.addColorStop(0, "rgb(207, 0, 15)");
 	gradient.addColorStop(0.6, "rgb(255, 240, 0)");
@@ -123,34 +116,33 @@ function displayStats() {
 	ctx.fillRect(10, 10, shield, 30);
 	ctx.strokeStyle = "rgb(255, 255, 255)";
 	ctx.strokeRect(10, 10, 200, 30);
-	scoreDisplay.textContent = score;
-	efficiencyDisplay.textContent = ((targetHits / shotsFired) * 100)
-		.toFixed(1)
-		.toString();
-	hitShotQ = ((targetHits / shotsFired) * 100).toFixed(1).toString();
-	// ctx.font = "30px Arial";
-	// ctx.fillStyle = "white";
-	// ctx.fillText("Shield", 20, 35);
-	// ctx.fillText(`Score: ${score}`, canvas.width / 2 - 40, 35);
-	if (highscoreArr[0] != undefined) {
-		// ctx.fillText(
-		// 	`Highscore: ${highscoreArr[0].playerScore}`,
-		// 	canvas.width - 280,
-		// 	35
-		// );
 
+	ctx.font = "30px Arial";
+	ctx.fillStyle = "white";
+	ctx.fillText("Shield", 20, 35);
+	ctx.fillText(`Score: ${score}`, canvas.width / 2 - 40, 35);
+	if (highscoreArr[0] != undefined) {
+		ctx.fillText(
+			`Highscore: ${highscoreArr[0].playerScore}`,
+			canvas.width - 280,
+			35
+		);
 		if (score > highscoreArr[0].playerScore) {
 			highscoreArr[0].playerScore = score;
 		}
 	} else {
-		// ctx.fillText(`Highscore: ${score}`, canvas.width - 280, 35);
+		ctx.fillText(`Highscore: ${score}`, canvas.width - 280, 35);
 	}
 	if (newLevel) {
 		ctx.save();
-		textAlpha -= 0.01;
+		textAlpha -= 0.0075;
 		(ctx.font = "60px Arial"),
 			(ctx.fillStyle = `rgba(255, 255, 255, ${textAlpha})`);
-		ctx.fillText(`Level ${level}`, 450, 450);
+		ctx.fillText(
+			`Level ${level}`,
+			canvas.width / 2 - 100,
+			canvas.height / 2 - 50
+		);
 		ctx.restore();
 	}
 }
@@ -170,18 +162,30 @@ const background = {
 	},
 	draw: function () {
 		this.move();
-		ctx.drawImage(this.img, 0, this.y);
+		let factor = scaleToFit(this.img);
 		this.speed < 0
-			? ctx.drawImage(this.img, 0, this.y + canvas.height)
-			: ctx.drawImage(this.img, 0, this.y - canvas.height);
+			? ctx.drawImage(
+					this.img,
+					0,
+					this.y + canvas.height,
+					this.img.width * factor,
+					this.img.height * factor
+			  )
+			: ctx.drawImage(
+					this.img,
+					0,
+					this.y - canvas.height,
+					this.img.width * factor,
+					this.img.height * factor
+			  );
 	},
 };
 
 // the spaceship object => the player
 let spaceship = {
 	img: spaceship1,
-	x: canvas.width / 2,
-	y: canvas.height / 2,
+	x: canvas.width / 2 - 70,
+	y: canvas.height / 2 - 70,
 	w: 140,
 	h: 140,
 	velocity: {
@@ -192,6 +196,7 @@ let spaceship = {
 		ctx.drawImage(this.img, this.x, this.y, this.w, this.h);
 	},
 };
+
 // pick your spaceship
 ship1.addEventListener("click", function () {
 	spaceship.img = spaceship1;
@@ -649,14 +654,13 @@ function levels() {
 		newLevel = false;
 		objectArray = [];
 		enemyArr = [];
-		wrapper.classList.add("active");
 	}
 }
 
 // gameover
 function gameOver() {
 	cancelAnimationFrame(animationId);
-	wrapper.classList.remove("active");
+	canvas.style.display = "none";
 	endScreen.style.display = "flex";
 	playerName.style.display = "inline";
 	startAgainBtn.onclick = () => {
@@ -680,21 +684,14 @@ function winGame() {
 // Highscore
 function enterHighscore() {
 	scoreName = playerName.value;
-	console.log(hitShotQ);
-	effValue = hitShotQ;
-	highscoreArr.push({
-		name: scoreName,
-		playerScore: score,
-		efficiency: effValue,
-	});
+	highscoreArr.push({ name: scoreName, playerScore: score });
 	localStorage.setItem("highscores", JSON.stringify(highscoreArr));
 	playerName.value = "";
 }
 
-function createHighscoreEntry(scoreName, score, effValue) {
-	console.log(scoreName, score, effValue);
+function createHighscoreEntry(scoreName, score) {
 	const playerHighScore = document.createElement("li");
-	playerHighScore.innerHTML = `${scoreName} | ${score} points | ${effValue} %`;
+	playerHighScore.innerHTML = `${scoreName} ${score}`;
 	highScoreList.appendChild(playerHighScore);
 }
 
@@ -705,11 +702,7 @@ function createTop3(highscoreArr) {
 	);
 	for (let i = 0; i < 3; i++) {
 		if (highscoreArr[i]) {
-			createHighscoreEntry(
-				highscoreArr[i].name,
-				highscoreArr[i].playerScore,
-				highscoreArr[i].efficiency
-			);
+			createHighscoreEntry(highscoreArr[i].name, highscoreArr[i].playerScore);
 		}
 	}
 }
@@ -723,14 +716,13 @@ submitBtn.onclick = () => {
 
 // new game reset
 function reset() {
-	spaceship.x = canvas.width / 2;
-	spaceship.y = canvas.height / 2;
+	spaceship.x = canvas.width / 2 - spaceship.w / 2;
+	spaceship.y = canvas.height / 2 - spaceship.h / 2;
 	updates = 0;
 	level = 1;
 	difficulty = 100;
 	shield = 200;
 	score = 0;
-	targetHits = 0;
 	objectArray = [];
 	weaponArr = [];
 	enemyArr = [];
@@ -744,7 +736,14 @@ function start() {
 	howToPlay.style.display = "none";
 	endScreen.style.display = "none";
 	startScreen.style.display = "none";
-	wrapper.classList.add("active");
+	canvas.style.display = "flex";
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+	canvas.style.marginLeft = ((body.width - canvas.width) / 2).toString();
+	canvas.style.marginRight = ((body.width - canvas.width) / 2).toString();
+
+	console.log(canvas.width);
+	console.log(canvas.height);
 	updateCanvas();
 	gameMusic1.play();
 }
@@ -756,16 +755,11 @@ function startGame() {
 
 // shooting on mouseclick
 addEventListener("click", (event) => {
-	shotsFired++;
-
 	spaceshipLaser.play();
 	const angle = Math.atan2(
 		event.clientY - (spaceship.y + spaceship.h / 2),
 		event.clientX - (spaceship.x + spaceship.w / 2)
 	);
-	// console.log("MOUSE_X_Y:", event.clientX, event.clientY);
-	// console.log("SHIP_X_Y:", spaceship.x, spaceship.y);
-
 	const velocity = {
 		x: Math.cos(angle) * 5,
 		y: Math.sin(angle) * 5,
@@ -873,8 +867,6 @@ function updateCanvas() {
 					);
 				}
 				hit.play();
-				targetHits++;
-
 				score += 20;
 				enemyArr.splice(index, 1);
 				weaponArr.splice(weaponIndex, 1);
@@ -887,6 +879,7 @@ function updateCanvas() {
 		boss.shoot();
 		weaponArr.forEach((weapon, weaponIndex) => {
 			if (hitCircles(weapon.x, boss.x, weapon.y, boss.y, 15, boss.w / 2)) {
+				console.log("hitEnemy");
 				endbossHits++;
 				for (let i = 0; i <= 10; i++) {
 					explosionArr.push(
@@ -989,7 +982,6 @@ function updateCanvas() {
 				hit.play();
 				objectArray.splice(objIndex, 1);
 				weaponArr.splice(weaponIndex, 1);
-				targetHits++;
 				score += 50;
 			} else if (
 				hitCircles(weapon.x, object.x, weapon.y, object.y, 3, object.w / 2)
@@ -1016,7 +1008,7 @@ function updateCanvas() {
 		object.score();
 	});
 
-	displayStats();
+	dispalyStats();
 
 	animationId = requestAnimationFrame(updateCanvas);
 	// GAME OVER

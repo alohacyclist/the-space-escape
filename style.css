@@ -1,36 +1,15 @@
-* {
+body {
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
-}
-body {
-	display: flex;
-	flex-direction: column;
-	height: 100vh;
-	width: 100vw;
 	background-color: black;
 	overflow: hidden;
 }
 
-.wrapper {
+#canvas {
 	display: none;
-	&.active {
-		display: flex;
-		width: 100vw;
-		justify-content: space-evenly;
-		margin: auto;
-		cursor: crosshair;
-	}
-}
-.wrapper div {
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	width: 100%;
-	color: #fff;
-}
-.stats h3 {
-	border: none;
+	cursor: crosshair;
+	margin: auto;
 }
 
 h1 {
