@@ -102,10 +102,9 @@ showHighScore.onclick = () => {
 	startScreen.classList.remove("active");
 	highScoreList.classList.add("active");
 	highScores.classList.add("active");
-	createTop3(highscoreArr);
+	createTop3(highScoreList, highscoreArr);
 };
 function handleDisplay() {
-	console.log(this.event.target.classList.value);
 	const destination = this.event.target.classList.value;
 	switch (destination) {
 		case "pickShipBtn":
@@ -132,10 +131,10 @@ let newLevel = false;
 let winLevel = false;
 let endbossHits = 0;
 let updates = 0;
-let level = 10;
+let level = 1;
 let difficulty = 100;
-let shield = 5;
-let score = 100000;
+let shield = 200;
+let score = 0;
 let efficiency = 0;
 let hitTargets = 0;
 let shotsFired = 0;
@@ -697,7 +696,6 @@ function gameOver() {
 	gameOverHighScore.classList.add("active");
 	playerName.addEventListener("input", () => {
 		submitBtn.disabled = false;
-		console.log("INPUT");
 	});
 	startAgainBtn.onclick = () => {
 		reset();
@@ -732,26 +730,33 @@ function enterHighscore() {
 	playerName.value = "";
 }
 
-function createHighscoreEntry(scoreName, score, efficiency) {
+function createHighscoreEntry(
+	el,
+	scoreName,
+	score,
+	efficiency,
+	hitTargets,
+	shotsFired
+) {
 	const playerHighScore = document.createElement("li");
 	playerHighScore.innerHTML = `<span class="upperCase">${scoreName}</span><span class=""> ${score}</span>${
 		efficiency !== undefined && !isNaN(efficiency)
 			? `<span class="more"> ${efficiency} %<div class="tooltip"><p>Hits: ${hitTargets}</p><p>Shots: ${shotsFired}</p></div></span>`
 			: ""
 	}`;
-
-	highScoreList.appendChild(playerHighScore);
-	gameOverHighScore.appendChild(playerHighScore);
+	el.appendChild(playerHighScore);
 }
 
-function createTop3(highscoreArr) {
-	highScoreList.innerHTML = "";
+function createTop3(el, highscoreArr) {
+	el.innerHTML = "";
 	highscoreArr.sort(
 		(score1, score2) => score2.playerScore - score1.playerScore
 	);
 	for (let i = 0; i < 10; i++) {
+		console.log(highscoreArr[i]);
 		if (highscoreArr[i]) {
 			createHighscoreEntry(
+				el,
 				highscoreArr[i].name,
 				highscoreArr[i].playerScore,
 				highscoreArr[i].efficiency,
@@ -764,7 +769,7 @@ function createTop3(highscoreArr) {
 
 submitBtn.onclick = () => {
 	enterHighscore();
-	createTop3(highscoreArr);
+	createTop3(gameOverHighScore, highscoreArr);
 	highScoreEntry.classList.remove("active");
 	gameOverHighScore.classList.add("active");
 };
