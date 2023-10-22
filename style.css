@@ -1,3 +1,7 @@
+p {
+	margin: 0;
+	padding: 0;
+}
 body {
 	margin: 0;
 	padding: 0;
@@ -6,13 +10,8 @@ body {
 	overflow: hidden;
 }
 
-#canvas {
+h1#title {
 	display: none;
-	cursor: crosshair;
-	margin: auto;
-}
-
-h1 {
 	position: relative;
 	margin: 30px;
 	font-size: 60px;
@@ -35,10 +34,32 @@ h3 {
 	border: 5px solid #fff;
 	padding: 15px;
 }
+/* Buttons and button transitions */
+button {
+	cursor: pointer;
+	padding: 13px;
+	margin: 30px;
+	background: black;
+	color: white;
+	border: 3px solid #fff;
+	transition: transform 250ms;
+}
 
+button:hover {
+	transform: scale(1.1);
+}
+
+#canvas {
+	display: none;
+	cursor: crosshair;
+	margin: auto;
+}
+.active {
+	display: flex !important;
+}
 /* Startscreen Elements */
 #startScreen {
-	display: flex;
+	display: none;
 	flex-direction: column;
 	position: absolute;
 	align-items: center;
@@ -67,11 +88,16 @@ h3 {
 	border: 5px solid #fff;
 	margin: 30px;
 	padding: 10px;
-	transition: transform 250ms;
-}
-
-.ships:hover {
-	transform: scale(1.1);
+	transition: 400ms;
+	opacity: 0.4;
+	&:hover {
+		transform: scale(1.1);
+		opacity: 1;
+	}
+	&.selected {
+		transform: scale(1.1);
+		opacity: 1;
+	}
 }
 
 #howToPlay {
@@ -89,61 +115,12 @@ h3 {
 	display: flex;
 	flex-direction: column;
 }
-/* Buttons and button transitions */
-button {
-	cursor: pointer;
+
+.btn_row {
+	display: none;
+	justify-content: center;
 }
 
-.btns {
-	display: flex;
-}
-
-.startBtn {
-	padding: 13px;
-	margin: 30px;
-	background: black;
-	color: white;
-	border: 3px solid #fff;
-	transition: transform 250ms;
-}
-
-.startBtn:hover {
-	transform: scale(1.1);
-}
-
-.howToPlayBtn:hover {
-	transform: scale(1.1);
-}
-
-.startAgainBtn:hover {
-	transform: scale(1.1);
-}
-
-.submit:hover {
-	transform: scale(1.1);
-}
-
-.pickShipBtn:hover {
-	transform: scale(1.1);
-}
-
-.pickShipBtn {
-	padding: 13px;
-	margin: 30px;
-	background: black;
-	color: white;
-	border: 3px solid #fff;
-	transition: transform 250ms;
-}
-
-.howToPlayBtn {
-	padding: 13px;
-	margin: 30px;
-	background: black;
-	color: white;
-	border: 3px solid #fff;
-	transition: transform 250ms;
-}
 /* Endscreen Elements */
 #endScreen {
 	display: none;
@@ -175,12 +152,28 @@ input {
 	margin: 0 10px;
 }
 
+#highScores {
+	display: none;
+	justify-content: center;
+	flex-direction: column;
+	margin: auto;
+}
+
 #highScore {
 	align-items: center;
 }
 
 .highScoreList {
-	display: flex;
+	display: none;
+	flex-direction: column;
+	position: relative;
+	align-items: center;
+	color: white;
+	font-size: 28px;
+	list-style: column;
+}
+.gameOverHighScore {
+	display: none;
 	flex-direction: column;
 	position: relative;
 	align-items: center;
@@ -225,4 +218,33 @@ input {
 	text-align: center;
 	color: #fff;
 	padding: 15px;
+}
+.highScoreEntry {
+	display: none;
+}
+/* helper tools */
+.hide {
+	display: none;
+}
+.upperCase {
+	text-transform: uppercase;
+}
+.more {
+	position: relative;
+}
+.tooltip {
+	display: none;
+}
+.more:hover > .tooltip {
+	position: absolute;
+	left: 50px;
+	bottom: 0;
+	padding: 0.5rem;
+	border-radius: 5px;
+	width: 80px;
+	font-size: 16px;
+	color: #fff;
+	display: flex;
+	flex-direction: column;
+	background-color: rgba(255, 255, 255, 0.5);
 }

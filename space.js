@@ -1,16 +1,27 @@
 const canvas = document.querySelector("#canvas");
 const ctx = canvas.getContext("2d");
 const body = document.querySelector("body");
+const title = document.querySelector("#title");
+
 const startBtn = document.querySelector(".startBtn");
 const howToPlayBtn = document.querySelector(".howToPlayBtn");
 const pickShipBtn = document.querySelector(".pickShipBtn");
+const showHighScore = document.querySelector(".showHighScore");
+
 const startAgainBtn = document.querySelector(".startAgainBtn");
-const playerName = document.querySelector(".playerName");
-const highScoreList = document.querySelector(".highScoreList");
 const submitBtn = document.querySelector(".submit");
-const instructions = document.querySelector("#howToPlay");
+
+const playerName = document.querySelector(".playerName");
+const gameScore = document.querySelector(".gameScore");
+const highScoreList = document.querySelector(".highScoreList");
+const gameOverHighScore = document.querySelector(".gameOverHighScore");
+const highScoreEntry = document.querySelector(".highScoreEntry");
+
 const win = document.querySelector("#winScreen");
 const startPage = document.querySelector("#startScreen");
+const pickShip = document.querySelector("#pickShip");
+const howToPlay = document.querySelector("#howToPlay");
+const highScores = document.querySelector("#highScores");
 
 // canvas size
 canvas.width = window.innerWidth;
@@ -64,26 +75,55 @@ const gameMusic2 = new Audio("./sounds/colossus2.mp3");
 
 // click events for buttons on start screen
 startBtn.onclick = () => {
+	howToPlay.classList.remove("active");
+	pickShip.classList.remove("active");
+	title.classList.remove("active");
+	highScores.classList.remove("active");
 	startGame();
 };
 howToPlayBtn.onclick = () => {
-	if (howToPlay.style.display != "flex") {
-		howToPlay.style.display = "flex";
-		pickShip.style.display = "none";
-	} else {
-		howToPlay.style.display = "none";
-	}
+	howToPlay.classList.add("active");
+	pickShip.classList.remove("active");
+	title.classList.remove("active");
+	highScores.classList.remove("active");
 };
 pickShipBtn.onclick = () => {
-	if (pickShip.style.display != "flex") {
-		pickShip.style.display = "flex";
-		howToPlay.style.display = "none";
-	} else {
-		pickShip.style.display = "none";
-		shipBox.style.display = "none";
-	}
+	pickShip.classList.add("active");
+	highScores.classList.remove("active");
+	howToPlay.classList.remove("active");
+	title.classList.remove("active");
+	highScoreList.classList.remove("active");
+	highScores.classList.remove("active");
 };
-
+showHighScore.onclick = () => {
+	howToPlay.classList.remove("active");
+	pickShip.classList.remove("active");
+	title.classList.remove("active");
+	startScreen.classList.remove("active");
+	highScoreList.classList.add("active");
+	highScores.classList.add("active");
+	createTop3(highscoreArr);
+};
+function handleDisplay() {
+	console.log(this.event.target.classList.value);
+	const destination = this.event.target.classList.value;
+	switch (destination) {
+		case "pickShipBtn":
+			this.event.target.parentNode.parentNode.classList.remove("active");
+			startScreen.classList.add("active");
+			pickShip.classList.add("active");
+			break;
+		case "startBtn":
+			this.event.target.parentNode.parentNode.classList.remove("active");
+			startGame();
+			break;
+		case "howToPlayBtn":
+			this.event.target.parentNode.parentNode.classList.remove("active");
+			startScreen.classList.add("active");
+			howToPlay.classList.add("active");
+			break;
+	}
+}
 // some variables
 let animationId;
 let textAlpha = 1;
@@ -94,8 +134,11 @@ let endbossHits = 0;
 let updates = 0;
 let level = 10;
 let difficulty = 100;
-let shield = 200;
-let score = 0;
+let shield = 5;
+let score = 100000;
+let efficiency = 0;
+let hitTargets = 0;
+let shotsFired = 0;
 let objectArray = [];
 let weaponArr = [];
 let explosionArr = [];
@@ -198,35 +241,22 @@ let spaceship = {
 };
 
 // pick your spaceship
-ship1.addEventListener("click", function () {
-	spaceship.img = spaceship1;
-	if (ship1.style.transform != "scale(1.1)") {
-		ship1.style.transform = "scale(1.1)";
-		ship2.style.transform = "scale(1)";
-		ship3.style.transform = "scale(1)";
-	} else {
-		ship1.style.transform = "scale(1)";
-	}
-});
-ship2.addEventListener("click", function () {
-	spaceship.img = spaceship2;
-	if (ship2.style.transform != "scale(1.1)") {
-		ship2.style.transform = "scale(1.1)";
-		ship1.style.transform = "scale(1)";
-		ship3.style.transform = "scale(1)";
-	} else {
-		ship2.style.transform = "scale(1)";
-	}
-});
-ship3.addEventListener("click", function () {
-	spaceship.img = spaceship3;
-	if (ship3.style.transform != "scale(1.1)") {
-		ship3.style.transform = "scale(1.1)";
-		ship1.style.transform = "scale(1)";
-		ship2.style.transform = "scale(1)";
-	} else {
-		ship3.style.transform = "scale(1)";
-	}
+// Define an array of spaceship options and corresponding elements
+const spaceshipOptions = [
+	{ img: spaceship1, element: document.getElementById("ship1") },
+	{ img: spaceship2, element: document.getElementById("ship2") },
+	{ img: spaceship3, element: document.getElementById("ship3") },
+];
+
+// Add click event listeners for each spaceship option
+spaceshipOptions.forEach((option, index) => {
+	option.element.addEventListener("click", () => {
+		spaceshipOptions.forEach((opt, i) => {
+			opt.element.classList.toggle("selected", i === index);
+		});
+		spaceship.img = option.img;
+		startBtn.classList.toggle("disabled");
+	});
 });
 
 // Obstacles
@@ -660,9 +690,14 @@ function levels() {
 // gameover
 function gameOver() {
 	cancelAnimationFrame(animationId);
-	canvas.style.display = "none";
-	endScreen.style.display = "flex";
-	playerName.style.display = "inline";
+	console.log(hitTargets, shotsFired);
+	canvas.classList.remove("active");
+	endScreen.classList.add("active");
+	highScoreEntry.classList.add("active");
+	playerName.addEventListener("input", () => {
+		submitBtn.disabled = false;
+		console.log("INPUT");
+	});
 	startAgainBtn.onclick = () => {
 		reset();
 		start();
@@ -672,9 +707,9 @@ function gameOver() {
 // win
 function winGame() {
 	cancelAnimationFrame(animationId);
-	win.style.display = "none";
-	canvas.style.display = "none";
-	endScreen.style.display = "flex";
+	win.classList.remove("active");
+	canvas.classList.remove("active");
+	endScreen.classList.add("active");
 	startAgainBtn.onclick = () => {
 		reset();
 		start();
@@ -684,15 +719,28 @@ function winGame() {
 // Highscore
 function enterHighscore() {
 	scoreName = playerName.value;
-	highscoreArr.push({ name: scoreName, playerScore: score });
+	efficiency = ((hitTargets / shotsFired) * 100).toFixed(1).toString();
+	highscoreArr.push({
+		name: scoreName,
+		playerScore: score,
+		efficiency: efficiency,
+		hitTargets: hitTargets,
+		shotsFired: shotsFired,
+	});
 	localStorage.setItem("highscores", JSON.stringify(highscoreArr));
 	playerName.value = "";
 }
 
-function createHighscoreEntry(scoreName, score) {
+function createHighscoreEntry(scoreName, score, efficiency) {
 	const playerHighScore = document.createElement("li");
-	playerHighScore.innerHTML = `${scoreName} ${score}`;
+	playerHighScore.innerHTML = `<span class="upperCase">${scoreName}</span><span class=""> ${score}</span>${
+		efficiency !== undefined && !isNaN(efficiency)
+			? `<span class="more"> ${efficiency} %<div class="tooltip"><p>Hits: ${hitTargets}</p><p>Shots: ${shotsFired}</p></div></span>`
+			: ""
+	}`;
+
 	highScoreList.appendChild(playerHighScore);
+	gameOverHighScore.appendChild(playerHighScore);
 }
 
 function createTop3(highscoreArr) {
@@ -700,9 +748,15 @@ function createTop3(highscoreArr) {
 	highscoreArr.sort(
 		(score1, score2) => score2.playerScore - score1.playerScore
 	);
-	for (let i = 0; i < 3; i++) {
+	for (let i = 0; i < 10; i++) {
 		if (highscoreArr[i]) {
-			createHighscoreEntry(highscoreArr[i].name, highscoreArr[i].playerScore);
+			createHighscoreEntry(
+				highscoreArr[i].name,
+				highscoreArr[i].playerScore,
+				highscoreArr[i].efficiency,
+				highscoreArr[i].hitTargets,
+				highscoreArr[i].shotsFired
+			);
 		}
 	}
 }
@@ -710,8 +764,8 @@ function createTop3(highscoreArr) {
 submitBtn.onclick = () => {
 	enterHighscore();
 	createTop3(highscoreArr);
-	submitBtn.style.display = "none";
-	playerName.style.display = "none";
+	highScoreEntry.classList.remove("active");
+	gameOverHighScore.classList.add("active");
 };
 
 // new game reset
@@ -723,6 +777,12 @@ function reset() {
 	difficulty = 100;
 	shield = 200;
 	score = 0;
+	/*	
+	level = 8;
+	difficulty = 100;
+	shield = 20;
+	score = 77770;
+	*/
 	objectArray = [];
 	weaponArr = [];
 	enemyArr = [];
@@ -732,18 +792,15 @@ function reset() {
 
 // start a new game
 function start() {
-	pickShip.style.display = "none";
-	howToPlay.style.display = "none";
-	endScreen.style.display = "none";
-	startScreen.style.display = "none";
-	canvas.style.display = "flex";
+	pickShip.classList.remove("active");
+	howToPlay.classList.remove("active");
+	endScreen.classList.remove("active");
+	startScreen.classList.remove("active");
+	canvas.classList.add("active");
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
-	canvas.style.marginLeft = ((body.width - canvas.width) / 2).toString();
-	canvas.style.marginRight = ((body.width - canvas.width) / 2).toString();
-
-	console.log(canvas.width);
-	console.log(canvas.height);
+	// canvas.style.marginLeft = ((body.width - canvas.width) / 2).toString();
+	// canvas.style.marginRight = ((body.width - canvas.width) / 2).toString();
 	updateCanvas();
 	gameMusic1.play();
 }
@@ -755,6 +812,7 @@ function startGame() {
 
 // shooting on mouseclick
 addEventListener("click", (event) => {
+	shotsFired++;
 	spaceshipLaser.play();
 	const angle = Math.atan2(
 		event.clientY - (spaceship.y + spaceship.h / 2),
@@ -868,6 +926,7 @@ function updateCanvas() {
 				}
 				hit.play();
 				score += 20;
+				hitTargets++;
 				enemyArr.splice(index, 1);
 				weaponArr.splice(weaponIndex, 1);
 			}
@@ -879,7 +938,6 @@ function updateCanvas() {
 		boss.shoot();
 		weaponArr.forEach((weapon, weaponIndex) => {
 			if (hitCircles(weapon.x, boss.x, weapon.y, boss.y, 15, boss.w / 2)) {
-				console.log("hitEnemy");
 				endbossHits++;
 				for (let i = 0; i <= 10; i++) {
 					explosionArr.push(
@@ -960,7 +1018,6 @@ function updateCanvas() {
 			}
 			hit.play();
 			objectArray.splice(objIndex, 1);
-			console.log("hitSpaceship");
 			shield -= 30;
 			score -= 300;
 		}
@@ -978,11 +1035,11 @@ function updateCanvas() {
 						})
 					);
 				}
-				console.log("hitEnemy");
 				hit.play();
 				objectArray.splice(objIndex, 1);
 				weaponArr.splice(weaponIndex, 1);
 				score += 50;
+				hitTargets++;
 			} else if (
 				hitCircles(weapon.x, object.x, weapon.y, object.y, 3, object.w / 2)
 			) {

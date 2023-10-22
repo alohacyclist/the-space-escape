@@ -19,7 +19,7 @@
 			<canvas id="canvas"></canvas>
 		</div>
 
-		<div id="startScreen">
+		<div id="startScreen" class="active">
 			<div id="pickShip">
 				<h3>Pick your spaceship</h3>
 				<div class="shipBox">
@@ -45,24 +45,39 @@
 				</ul>
 			</div>
 
-			<h1>The Space Escape</h1>
-			<div class="btns">
+			<h1 id="title" class="active">The Space Escape</h1>
+			<div class="btn_row active">
 				<button class="pickShipBtn">Spaceships</button>
 				<button class="startBtn">Start Game</button>
 				<button class="howToPlayBtn">How to play</button>
+				<button class="showHighScore">Highscores</button>
+			</div>
+		</div>
+
+		<div id="highScores">
+			<ul class="highScoreList"></ul>
+			<div class="btn_row active">
+				<button class="pickShipBtn" onclick="handleDisplay()">
+					Spaceships
+				</button>
+				<button class="startBtn" onclick="handleDisplay()">Start Game</button>
+				<button class="howToPlayBtn" onclick="handleDisplay()">
+					How to play
+				</button>
 			</div>
 		</div>
 
 		<div id="endScreen">
 			<div id="highScore">
-				<h2>Highscore</h2>
-				<input class="playerName" type="text" placeholder="Enter your name" />
-				<button class="submit">Enter</button>
-				<ul class="highScoreList"></ul>
+				<h2>Your Score: <span class="gameScore"></span></h2>
+				<div class="highScoreEntry">
+					<input class="playerName" type="text" placeholder="Enter your name" />
+					<button class="submit" disabled>Enter</button>
+				</div>
+				<ul class="gameOverHighScore"></ul>
 			</div>
 			<div class="gameover">
-				<h1>Game Over</h1>
-				<button class="startAgainBtn">Start Game</button>
+				<button class="startAgainBtn">Start New Game</button>
 			</div>
 		</div>
 
