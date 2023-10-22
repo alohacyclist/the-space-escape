@@ -694,6 +694,7 @@ function gameOver() {
 	canvas.classList.remove("active");
 	endScreen.classList.add("active");
 	highScoreEntry.classList.add("active");
+	gameOverHighScore.classList.add("active");
 	playerName.addEventListener("input", () => {
 		submitBtn.disabled = false;
 		console.log("INPUT");
