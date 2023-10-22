@@ -58,6 +58,10 @@ button:hover {
 	display: flex !important;
 	visibility: visible !important;
 }
+.active > #highScore {
+	display: flex;
+	flex-direction: column;
+}
 /* Startscreen Elements */
 #startScreen {
 	display: none;
@@ -238,7 +242,7 @@ input {
 }
 .more:hover > .tooltip {
 	position: absolute;
-	left: 50px;
+	left: 100px;
 	bottom: 0;
 	padding: 0.5rem;
 	border-radius: 5px;

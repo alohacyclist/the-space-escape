@@ -689,11 +689,11 @@ function levels() {
 // gameover
 function gameOver() {
 	cancelAnimationFrame(animationId);
-	console.log(hitTargets, shotsFired);
 	canvas.classList.remove("active");
 	endScreen.classList.add("active");
 	highScoreEntry.classList.add("active");
 	gameOverHighScore.classList.add("active");
+	gameScore.innerHTML = `${score}`;
 	playerName.addEventListener("input", () => {
 		submitBtn.disabled = false;
 	});
@@ -709,6 +709,13 @@ function winGame() {
 	win.classList.remove("active");
 	canvas.classList.remove("active");
 	endScreen.classList.add("active");
+	highScoreEntry.classList.add("active");
+	gameOverHighScore.classList.add("active");
+	gameScore.innerHTML = `${score}`;
+
+	playerName.addEventListener("input", () => {
+		submitBtn.disabled = false;
+	});
 	startAgainBtn.onclick = () => {
 		reset();
 		start();
@@ -784,9 +791,9 @@ function reset() {
 	shield = 200;
 	score = 0;
 	/*	
-	level = 8;
+	level = 9;
 	difficulty = 100;
-	shield = 20;
+	shield = 2000;
 	score = 77770;
 	*/
 	objectArray = [];
@@ -987,13 +994,13 @@ function updateCanvas() {
 				);
 			}
 			objectArray = [];
-			win.style.display = "flex";
+			win.classList.add("active");
 			setTimeout(() => {
 				objectArray = [];
 			}, 2500);
 			setTimeout(() => {
 				winGame(), (score += 3000);
-			}, 7000);
+			}, 3500);
 		}
 		explosionArr.forEach((explosion) => {
 			explosion.draw();
