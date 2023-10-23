@@ -73,44 +73,39 @@ const hit = new Audio("./sounds/hit.wav");
 const gameMusic1 = new Audio("./sounds/colossus1.mp3");
 const gameMusic2 = new Audio("./sounds/colossus2.mp3");
 
-// click events for buttons on start screen
+function setActive(element, ...elementsToDeactivate) {
+	element.classList.add("active");
+	elementsToDeactivate.forEach((el) => el.classList.remove("active"));
+}
+
 startBtn.onclick = () => {
-	howToPlay.classList.remove("active");
-	pickShip.classList.remove("active");
-	title.classList.remove("active");
-	highScores.classList.remove("active");
 	startGame();
+	setActive(null, howToPlay, pickShip, title, highScores);
 };
+
 howToPlayBtn.onclick = () => {
-	howToPlay.classList.add("active");
-	pickShip.classList.remove("active");
-	title.classList.remove("active");
-	highScores.classList.remove("active");
+	setActive(howToPlay, pickShip, title, highScores);
 };
+
 pickShipBtn.onclick = () => {
-	pickShip.classList.add("active");
-	highScores.classList.remove("active");
-	howToPlay.classList.remove("active");
-	title.classList.remove("active");
-	highScoreList.classList.remove("active");
-	highScores.classList.remove("active");
+	setActive(pickShip, highScores, howToPlay, title, highScoreList, highScores);
 };
+
 showHighScore.onclick = () => {
-	howToPlay.classList.remove("active");
-	pickShip.classList.remove("active");
-	title.classList.remove("active");
-	startScreen.classList.remove("active");
-	highScoreList.classList.add("active");
-	highScores.classList.add("active");
+	setActive(highScoreList);
+	setActive(highScores, howToPlay, pickShip, title, startScreen);
 	createTop3(highScoreList, highscoreArr);
 };
+
 function handleDisplay() {
 	const destination = this.event.target.classList.value;
 	switch (destination) {
 		case "pickShipBtn":
 			this.event.target.parentNode.parentNode.classList.remove("active");
-			startScreen.classList.add("active");
-			pickShip.classList.add("active");
+			setActive(startScreen);
+			setActive(pickShip);
+			// startScreen.classList.add("active");
+			// pickShip.classList.add("active");
 			break;
 		case "startBtn":
 			this.event.target.parentNode.parentNode.classList.remove("active");
@@ -118,8 +113,8 @@ function handleDisplay() {
 			break;
 		case "howToPlayBtn":
 			this.event.target.parentNode.parentNode.classList.remove("active");
-			startScreen.classList.add("active");
-			howToPlay.classList.add("active");
+			setActive(startScreen);
+			setActive(howToPlay);
 			break;
 	}
 }
@@ -812,8 +807,6 @@ function start() {
 	canvas.classList.add("active");
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
-	// canvas.style.marginLeft = ((body.width - canvas.width) / 2).toString();
-	// canvas.style.marginRight = ((body.width - canvas.width) / 2).toString();
 	updateCanvas();
 	gameMusic1.play();
 }

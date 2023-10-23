@@ -66,11 +66,10 @@ button:hover {
 #startScreen {
 	display: none;
 	flex-direction: column;
-	position: absolute;
+	margin: auto;
 	align-items: center;
-	top: 60%;
-	left: 50%;
-	transform: translate(-50%, -50%);
+	height: 100vh;
+	justify-content: center;
 }
 
 #pickShip {
@@ -95,6 +94,7 @@ button:hover {
 	padding: 10px;
 	transition: 400ms;
 	opacity: 0.4;
+	cursor: pointer;
 	&:hover {
 		transform: scale(1.1);
 		opacity: 1;
@@ -162,6 +162,7 @@ input {
 	justify-content: center;
 	flex-direction: column;
 	margin: auto;
+	height: 100vh;
 }
 
 #highScore {
